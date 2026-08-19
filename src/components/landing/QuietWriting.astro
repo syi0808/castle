@@ -6,13 +6,32 @@ const { posts } = Astro.props;
 const formatDate = (date: Date) => `${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
 ---
 
-<section class="quiet-writing" data-quiet-writing>
-  <header><h2>Writing</h2><a href={`${import.meta.env.BASE_URL}archive`}>Archive →</a></header>
-  <ol>
-    {posts.map((post) => (
-      <li><a href={`${import.meta.env.BASE_URL}${post.id}`}><time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time><span data-writing-title>{post.data.title}</span></a></li>
-    ))}
-  </ol>
+<section class="writing-shell" data-quiet-writing>
+  <div class="quiet-writing">
+    <header>
+      <div class="writing-title">
+        <span>Field notes · after the build</span>
+        <h2>Built,<br /><em>then written.</em></h2>
+      </div>
+      <div class="writing-intro">
+        <p>Notes on the decisions, failures, and systems behind the finished tools.</p>
+        <a href={`${import.meta.env.BASE_URL}archive`}>View every note <span>→</span></a>
+      </div>
+    </header>
+
+    <ol>
+      {posts.map((post, index) => (
+        <li>
+          <a href={`${import.meta.env.BASE_URL}${post.id}`}>
+            <span class="post-number">{String(index + 1).padStart(2, "0")}</span>
+            <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+            <span data-writing-title>{post.data.title}</span>
+            <span class="post-arrow">↗</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </div>
 </section>
 
 <script>
@@ -45,21 +64,34 @@ const formatDate = (date: Date) => `${String(date.getMonth() + 1).padStart(2, "0
 </script>
 
 <style>
-  .quiet-writing { width: min(calc(100% - 3rem), var(--page-width)); margin: 0 auto; padding: clamp(9rem, 18vw, 16rem) 0 3rem; }
-  header { display: flex; align-items: end; justify-content: space-between; margin-bottom: clamp(3rem, 7vw, 6rem); }
-  h2 { margin: 0; font-size: clamp(4.5rem, 10vw, 9rem); font-weight: 500; letter-spacing: -.075em; line-height: .8; }
-  header a { color: var(--color-text-sub); font-size: .8rem; text-decoration: none; }
-  header a:hover, header a:focus-visible { color: var(--color-text); }
+  .writing-shell { position: relative; z-index: 5; margin-top: -2.5rem; border-radius: clamp(1.5rem, 3vw, 3rem) clamp(1.5rem, 3vw, 3rem) 0 0; background: var(--color-bg); }
+  .quiet-writing { width: min(calc(100% - 3rem), var(--page-width)); margin: 0 auto; padding: clamp(7rem, 14vw, 13rem) 0 3rem; }
+  header { display: grid; grid-template-columns: minmax(20rem, 1.15fr) minmax(16rem, .55fr); gap: clamp(3rem, 9vw, 9rem); align-items: end; margin-bottom: clamp(5rem, 10vw, 9rem); }
+  .writing-title > span { display: block; margin-bottom: 2rem; color: var(--color-text-sub); font: .63rem var(--font-mono); letter-spacing: .05em; text-transform: uppercase; }
+  h2 { margin: 0; font-size: clamp(4.6rem, 9.5vw, 9.5rem); font-weight: 500; letter-spacing: -.085em; line-height: .76; }
+  h2 em { color: var(--color-accent); font-weight: inherit; }
+  .writing-intro { display: grid; gap: 2rem; padding-bottom: .35rem; }
+  .writing-intro p { max-width: 26rem; margin: 0; color: var(--color-text-sub); font-size: clamp(1rem, 1.5vw, 1.2rem); line-height: 1.55; }
+  .writing-intro a { display: flex; justify-content: space-between; padding-bottom: .55rem; border-bottom: 1px solid var(--color-accent); font-size: .72rem; text-decoration: none; }
+  .writing-intro a span { color: var(--color-accent); }
   ol { margin: 0; padding: 0; border-top: 1px solid var(--color-border); list-style: none; }
   li { border-bottom: 1px solid var(--color-border); }
-  li a { display: grid; grid-template-columns: 5rem 1fr; align-items: center; min-height: clamp(5rem, 9vw, 7.5rem); text-decoration: none; }
-  time { color: var(--color-text-sub); font: .68rem var(--font-mono); }
-  [data-writing-title] { width: fit-content; font-size: clamp(1.15rem, 2.2vw, 1.75rem); font-weight: 500; letter-spacing: -.025em; line-height: 1.25; }
+  li a { display: grid; grid-template-columns: 3.5rem 4.5rem minmax(0, 1fr) 2rem; align-items: center; min-height: clamp(5.75rem, 9vw, 8rem); text-decoration: none; }
+  .post-number, time { color: var(--color-text-sub); font: .62rem var(--font-mono); }
+  .post-number { color: var(--color-accent); }
+  [data-writing-title] { width: fit-content; font-size: clamp(1.2rem, 2.3vw, 1.9rem); font-weight: 500; letter-spacing: -.03em; line-height: 1.25; }
+  .post-arrow { color: var(--color-accent); opacity: 0; transform: translate(-.4rem, .4rem); transition: opacity 160ms ease, transform 160ms ease; }
+  li a:hover .post-arrow, li a:focus-visible .post-arrow { opacity: 1; transform: translate(0, 0); }
 
   @media (max-width: 700px) {
-    .quiet-writing { width: calc(100% - 2rem); padding-top: 8rem; }
-    h2 { font-size: clamp(4rem, 20vw, 6rem); }
-    li a { grid-template-columns: 3.75rem 1fr; min-height: 5.5rem; }
+    .writing-shell { margin-top: -1.5rem; border-radius: 1.5rem 1.5rem 0 0; }
+    .quiet-writing { width: calc(100% - 2rem); padding-top: 6rem; }
+    header { grid-template-columns: 1fr; gap: 2.5rem; margin-bottom: 5rem; }
+    .writing-title > span { margin-bottom: 1.4rem; }
+    h2 { font-size: clamp(4rem, 18vw, 6rem); }
+    .writing-intro { gap: 1.3rem; }
+    li a { grid-template-columns: 2.25rem minmax(0, 1fr) 1.5rem; min-height: 6.2rem; }
+    time { display: none; }
     [data-writing-title] { font-size: 1.05rem; }
   }
 </style>

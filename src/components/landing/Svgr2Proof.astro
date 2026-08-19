@@ -1,23 +1,36 @@
-<div class="svgr2-proof" data-proof="svgr2" aria-hidden="true">
-  <div class="fixture">
-    <svg viewBox="0 0 16 16" role="presentation"><path d="M8 1l7 14H1L8 1z" /></svg>
-    <div class="representation" aria-live="polite">
-      <code data-svgr-source aria-hidden="false">&lt;svg&gt;</code>
-      <code data-svgr-result aria-hidden="true">&lt;Icon /&gt;</code>
+<div class="transform-artifact" data-transform-artifact aria-hidden="true">
+  <header><span>asset.pipeline</span><span>typed output</span></header>
+  <div class="pipeline">
+    <div class="file-card input-file">
+      <span class="file-name">mark.svg</span>
+      <svg viewBox="0 0 48 48" role="presentation"><path d="M24 5 43 40H5L24 5Z" /><circle cx="24" cy="25" r="7" /></svg>
+      <code>raw asset</code>
+    </div>
+
+    <div class="transform-core">
+      <span>parse</span><i></i><span>optimize</span><i></i><span>generate</span>
+      <div class="representation"><code data-transform-source>svg</code><code data-transform-result>tsx</code></div>
+    </div>
+
+    <div class="file-card output-file">
+      <span class="file-name">Mark.tsx</span>
+      <pre><span>export</span> const Mark = () =&gt;<br />&nbsp;&nbsp;&lt;svg &lbrace;...props&rbrace; /&gt;</pre>
+      <code>ready to import</code>
     </div>
   </div>
-  <div class="benchmark"><strong>29.99×</strong><span>JSX · tiny fixture</span></div>
+  <footer><div><strong>29.99×</strong><span>JSX · tiny fixture</span></div><span>asset in</span><i></i><span>component out</span></footer>
 </div>
 
 <script>
   import { createEffect } from "@tradimation/core";
   import type { EffectController } from "@tradimation/core";
 
-  const root = document.querySelector<HTMLElement>(".svgr2-proof");
-  const source = root?.querySelector<HTMLElement>("[data-svgr-source]");
-  const result = root?.querySelector<HTMLElement>("[data-svgr-result]");
+  const root = document.querySelector<HTMLElement>("[data-transform-artifact]");
+  const source = root?.querySelector<HTMLElement>("[data-transform-source]");
+  const result = root?.querySelector<HTMLElement>("[data-transform-result]");
   let controller: EffectController | undefined;
   let played = false;
+  let running = false;
 
   const settle = () => {
     if (!source || !result) return;
@@ -25,43 +38,78 @@
     source.style.transform = "scale(1)";
     result.style.visibility = "visible";
     result.style.transform = "scale(1)";
-    result.setAttribute("aria-hidden", "false");
-    source.setAttribute("aria-hidden", "true");
+    root?.classList.add("transformed");
     played = true;
   };
 
   const activate = async (reduced: boolean) => {
-    if (!source || !result || played) return;
-    if (reduced) {
+    if (!source || !result || running) return;
+    if (played || reduced) {
       settle();
       return;
     }
-    await new Promise((resolve) => window.setTimeout(resolve, 260));
-    controller = createEffect(source, "compress-swap", { secondary: result, duration: 780 });
-    await controller.play();
-    settle();
+    running = true;
+    root?.classList.add("processing");
+    await new Promise((resolve) => window.setTimeout(resolve, 220));
+    try {
+      controller = createEffect(source, "compress-swap", { secondary: result, duration: 720 });
+      await controller.play();
+    } catch {
+      settle();
+    } finally {
+      settle();
+      running = false;
+    }
   };
 
-  window.addEventListener("landing:proof", ((event: CustomEvent<{ name: string; reduced: boolean }>) => {
+  window.addEventListener("landing:scene", ((event: CustomEvent<{ name: string; reduced: boolean }>) => {
     if (event.detail.name === "svgr2") void activate(event.detail.reduced);
   }) as EventListener);
   window.addEventListener("pagehide", () => controller?.destroy(), { once: true });
 </script>
 
 <style>
-  .svgr2-proof { position: relative; display: grid; width: min(76vw, 64rem); min-height: min(50vh, 30rem); place-items: center; }
-  .fixture { display: grid; gap: 1.8rem; place-items: center; }
-  .fixture svg { width: clamp(8rem, 18vw, 15rem); overflow: visible; }
-  .fixture path { fill: none; stroke: var(--stage-ink); stroke-width: .7; vector-effect: non-scaling-stroke; }
-  .representation { position: relative; display: grid; min-width: 9rem; height: 2.5rem; place-items: center; }
-  code { position: absolute; color: var(--stage-ink); font: 500 clamp(1.2rem, 2vw, 1.7rem) var(--font-mono); transform-origin: left center; white-space: nowrap; }
-  [data-svgr-result] { visibility: hidden; }
-  .benchmark { position: absolute; right: 0; bottom: 0; display: grid; justify-items: end; }
-  .benchmark strong { color: var(--color-accent); font-size: clamp(2.2rem, 5vw, 4.5rem); font-weight: 500; letter-spacing: -.055em; line-height: .9; }
-  .benchmark span { margin-top: .5rem; color: color-mix(in srgb, var(--stage-ink) 52%, transparent); font: .68rem var(--font-mono); }
+  .transform-artifact { width: min(100%, 47rem); overflow: hidden; border: 1px solid #46443e; border-radius: 1rem; background: #20201d; box-shadow: 0 2rem 6rem rgba(0,0,0,.25); }
+  header, footer { display: flex; align-items: center; justify-content: space-between; min-height: 2.6rem; padding: 0 1rem; color: #858178; font: .55rem var(--font-mono); text-transform: uppercase; }
+  header { border-bottom: 1px solid #46443e; }
+  .pipeline { display: grid; grid-template-columns: minmax(8rem, .9fr) minmax(7rem, .7fr) minmax(10rem, 1.15fr); gap: clamp(.8rem, 2.2vw, 1.5rem); align-items: center; min-height: clamp(19rem, 49vh, 29rem); padding: clamp(1rem, 3vw, 2rem); background: radial-gradient(circle at center, rgba(160,68,50,.13), transparent 38%), #1b1b18; }
+  .file-card { position: relative; display: grid; align-content: space-between; min-height: clamp(12rem, 28vw, 18rem); padding: 1rem; border: 1px solid #46443e; border-radius: .55rem; background: #22221e; }
+  .file-name { color: #aaa69c; font: .52rem var(--font-mono); }
+  .file-card > code { color: #68655e; font: .48rem var(--font-mono); text-transform: uppercase; }
+  .input-file svg { align-self: center; width: 70%; margin: auto; }
+  .input-file path, .input-file circle { fill: none; stroke: #b7b2a8; stroke-width: 1.2; }
+  .output-file { border-color: #625148; }
+  .output-file pre { overflow: hidden; margin: 0; color: #d5d0c6; font: clamp(.45rem, .78vw, .65rem)/1.8 var(--font-mono); white-space: nowrap; opacity: .35; transform: translateY(.5rem); transition: opacity 320ms ease, transform 320ms ease; }
+  .output-file pre span { color: var(--color-accent); }
+  .transformed .output-file pre { opacity: 1; transform: translateY(0); }
+  .transform-core { position: relative; display: grid; grid-template-columns: auto 1fr; gap: .75rem .55rem; align-items: center; color: #7f7b73; font: .48rem var(--font-mono); text-transform: uppercase; }
+  .transform-core i { height: 1px; overflow: hidden; background: #46443e; }
+  .transform-core i::after { display: block; width: 100%; height: 100%; background: var(--color-accent); content: ""; transform: translateX(-100%); }
+  .processing .transform-core i::after { animation: process 650ms ease forwards; }
+  .processing .transform-core i:nth-of-type(2)::after { animation-delay: 110ms; }
+  .representation { position: absolute; top: calc(100% + 1.4rem); right: 0; left: 0; display: grid; height: 2.3rem; border: 1px solid #46443e; border-radius: 999px; background: #1b1b18; place-items: center; }
+  .representation code { position: absolute; color: var(--color-accent); font: 500 .78rem var(--font-mono); transform-origin: left center; }
+  [data-transform-result] { visibility: hidden; }
+  footer { position: relative; justify-content: flex-end; gap: .7rem; border-top: 1px solid #46443e; }
+  footer > div { position: absolute; bottom: .7rem; left: 1rem; display: grid; }
+  footer strong { color: var(--color-accent); font-size: clamp(1.8rem, 4vw, 3.4rem); font-weight: 500; letter-spacing: -.06em; line-height: .85; }
+  footer div span { margin-top: .3rem; color: #77736b; font: .45rem var(--font-mono); }
+  footer i { width: 3rem; height: 1px; background: linear-gradient(90deg, var(--color-accent), #46443e); }
+
+  @keyframes process { to { transform: translateX(100%); } }
 
   @media (max-width: 700px) {
-    .svgr2-proof { width: calc(100vw - 2rem); min-height: 48vh; }
-    .benchmark { right: .5rem; bottom: 1rem; }
+    .transform-artifact { width: 100%; }
+    header, footer { min-height: 2rem; padding: 0 .7rem; font-size: .46rem; }
+    .pipeline { grid-template-columns: minmax(5.4rem, .8fr) minmax(4.7rem, .65fr) minmax(6.5rem, 1fr); gap: .45rem; min-height: 24svh; padding: .6rem; }
+    .file-card { min-height: 9rem; padding: .55rem; }
+    .file-name, .file-card > code, .transform-core { font-size: .35rem; }
+    .output-file pre { font-size: .33rem; }
+    .transform-core { gap: .5rem .35rem; }
+    .representation { top: calc(100% + .75rem); height: 1.7rem; }
+    .representation code { font-size: .58rem; }
+    footer > div { bottom: .45rem; left: .65rem; }
+    footer strong { font-size: 1.6rem; }
+    footer div span { display: none; }
   }
 </style>

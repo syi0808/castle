@@ -4,192 +4,206 @@ import TradimationProof from "./TradimationProof.astro";
 import Svgr2Proof from "./Svgr2Proof.astro";
 import { projects } from "../../data/projects";
 
-const featured = projects.filter((project) => project.featured && project.visual).sort((a, b) => a.order - b.order);
-const chapterTotal = String(featured.length).padStart(2, "0");
-const titleSizes: Record<string, string> = {
-  "rougher-stuff": "clamp(4rem, 11vw, 11rem)",
-  trandimation: "clamp(4rem, 11.5vw, 11.5rem)",
-  svgr2: "clamp(5rem, 13vw, 13rem)",
-};
+const featured = projects
+  .filter((project) => project.featured && project.visual)
+  .sort((first, second) => first.order - second.order);
+
+const sceneCopy = {
+  "rougher-stuff": {
+    eyebrow: "Gesture as interface",
+    title: "Make emphasis feel human.",
+    description: "A set of expressive web primitives that turns semantic intent into marks people already understand.",
+    details: ["DOM → drawn gesture", "Framework + Markdown", "Deterministic output"],
+  },
+  trandimation: {
+    eyebrow: "Motion as explanation",
+    title: "Make state change readable.",
+    description: "Traditional animation principles for the DOM, so an interface can show where it came from and where it went.",
+    details: ["Same element, new state", "Smear + swap effects", "Motion with continuity"],
+  },
+  svgr2: {
+    eyebrow: "Transformation as tooling",
+    title: "Make assets ready for code.",
+    description: "A focused SVG-to-component pipeline that removes repetitive cleanup between a visual asset and a typed interface.",
+    details: ["SVG → JSX component", "Configurable pipeline", "Fast tiny fixtures"],
+  },
+} as const;
 ---
 
-<section class="cinematic-sequence" data-cinematic-sequence data-chapter-total={chapterTotal}>
-  <div class="cinematic-stage" data-cinematic-stage>
-    <div class="title-stack" aria-live="polite">
-      <h1 data-cinematic-title="identity">Yein Sung</h1>
-      {featured.map((project) => (
-        <h2 data-cinematic-title={project.visual} aria-hidden="true" inert style={`--title-size:${titleSizes[project.name]}`}>
-          <a href={project.website ?? project.github} target="_blank" rel="noopener noreferrer">{project.name}</a>
-        </h2>
+<section class="hero-scroll" data-hero-scroll>
+  <div class="hero-stage" data-hero-stage>
+    <svg class="hero-grid" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
+      <path class="hero-thread" pathLength="1" d="M925 40 C 835 135, 955 235, 820 330 S 700 510, 790 615 S 635 790, 515 965" />
+      <circle cx="925" cy="40" r="5" />
+      <circle cx="515" cy="965" r="7" />
+    </svg>
+
+    <div class="hero-meta" aria-label="Introduction">
+      <span>Yein Sung</span>
+      <span>Software engineer</span>
+      <span>Seoul · KR</span>
+    </div>
+
+    <h1 aria-label="I make software tangible">
+      <span>I make</span>
+      <span>software</span>
+      <span class="hero-accent">tangible.</span>
+    </h1>
+
+    <p class="hero-intro">Open-source tools for the moment<br />an idea becomes an interface.</p>
+
+    <ol class="hero-index" aria-label="Selected work">
+      {featured.map((project, index) => (
+        <li><span>{String(index + 1).padStart(2, "0")}</span><span>{project.tagline}</span></li>
       ))}
-    </div>
+    </ol>
 
-    <p class="intro" data-cinematic-intro>I make tools, interfaces,<br />and things I wish existed.</p>
-    <span class="chapter-number" data-cinematic-number aria-hidden="true">01 / {chapterTotal}</span>
-
-    <div class="proof-stack">
-      <RougherProof />
-      <TradimationProof />
-      <Svgr2Proof />
-    </div>
+    <div class="scroll-cue" aria-hidden="true"><span>Follow the idea</span><i></i></div>
   </div>
-
-  <div class="chapters" aria-hidden="true">
-    <div class="chapter identity-chapter" data-cinematic-chapter="identity"></div>
-    {featured.map((project) => <div class="chapter" data-cinematic-chapter={project.visual}><span>{project.name}</span></div>)}
-  </div>
-
-  <noscript>
-    <style>
-      .cinematic-stage, .chapters { display: none !important; }
-      .cinematic-sequence { display: block !important; margin-top: 0 !important; }
-    </style>
-    <section class="no-script-work">
-      <h1>Yein Sung</h1>
-      <p>I make tools, interfaces,<br />and things I wish existed.</p>
-      <h2>Selected work</h2>
-      <ol>{featured.map((project) => <li><a href={project.website ?? project.github}>{project.name}</a></li>)}</ol>
-    </section>
-  </noscript>
 </section>
 
+<section class="work-film" data-work-film aria-label="Selected open-source work">
+  <div class="film-stage" data-film-stage>
+    <header class="film-header">
+      <span>One idea · Three instruments</span>
+      <span data-film-counter>01 / 03</span>
+    </header>
+
+    <div class="film-progress" aria-hidden="true">
+      <i data-film-progress></i>
+      {featured.map((_, index) => <span style={`--mark:${index / Math.max(featured.length - 1, 1)}`}></span>)}
+    </div>
+
+    <div class="project-scenes">
+      {featured.map((project, index) => {
+        const copy = sceneCopy[project.visual!];
+        return (
+          <article class="project-scene" data-project-scene={project.visual} data-scene-index={index} aria-hidden={index === 0 ? "false" : "true"} inert={index !== 0}>
+            <div class="scene-copy">
+              <div class="scene-label"><span>{String(index + 1).padStart(2, "0")}</span><span>{copy.eyebrow}</span></div>
+              <h2>{copy.title}</h2>
+              <p class="scene-description">{copy.description}</p>
+              <ul>{copy.details.map((detail) => <li>{detail}</li>)}</ul>
+              <a href={project.website ?? project.github} target="_blank" rel="noopener noreferrer">Explore {project.name}<span>↗</span></a>
+            </div>
+            <div class="scene-artifact">
+              {project.visual === "rougher-stuff" && <RougherProof />}
+              {project.visual === "trandimation" && <TradimationProof />}
+              {project.visual === "svgr2" && <Svgr2Proof />}
+            </div>
+          </article>
+        );
+      })}
+    </div>
+
+    <footer class="film-footer" aria-hidden="true"><span>intent</span><i></i><span>result</span></footer>
+  </div>
+
+  <div class="film-chapters" aria-hidden="true">
+    {featured.map((project) => <div><span>{project.name}</span></div>)}
+  </div>
+</section>
+
+<section class="landing-coda">
+  <div class="coda-rule" aria-hidden="true"><span></span><i></i><span></span></div>
+  <p>Different materials. One direction.</p>
+  <h2>Less distance<br />between <em>intent</em><br />and <em>result.</em></h2>
+  <div class="coda-footer">
+    <a href={`${import.meta.env.BASE_URL}work`}>View the full work index <span>↗</span></a>
+    <span>Tools · interfaces · open source</span>
+  </div>
+</section>
+
+<noscript>
+  <style>
+    .hero-scroll { height: auto !important; }
+    .hero-stage, .film-stage { position: relative !important; }
+    .work-film { margin-top: 0 !important; }
+    .film-chapters, .film-progress, .scroll-cue { display: none !important; }
+    .project-scenes { display: grid !important; }
+    .project-scene { position: relative !important; visibility: visible !important; opacity: 1 !important; transform: none !important; filter: none !important; min-height: 100svh; }
+  </style>
+</noscript>
+
 <script>
-  import { createEffect } from "@tradimation/core";
-  import type { EffectController } from "@tradimation/core";
-
-  const sequence = document.querySelector<HTMLElement>("[data-cinematic-sequence]");
-  const stage = sequence?.querySelector<HTMLElement>("[data-cinematic-stage]");
-  const titles = [...(sequence?.querySelectorAll<HTMLElement>("[data-cinematic-title]") ?? [])];
-  const titleMap = new Map(titles.map((title) => [title.dataset.cinematicTitle ?? "", title]));
-  const proofs = [...(sequence?.querySelectorAll<HTMLElement>("[data-proof]") ?? [])];
-  const proofMap = new Map(proofs.map((proof) => [proof.dataset.proof ?? "", proof]));
-  const chapters = [...(sequence?.querySelectorAll<HTMLElement>("[data-cinematic-chapter]") ?? [])];
-  const intro = sequence?.querySelector<HTMLElement>("[data-cinematic-intro]");
-  const number = sequence?.querySelector<HTMLElement>("[data-cinematic-number]");
+  const heroScroll = document.querySelector<HTMLElement>("[data-hero-scroll]");
+  const heroStage = document.querySelector<HTMLElement>("[data-hero-stage]");
+  const workFilm = document.querySelector<HTMLElement>("[data-work-film]");
+  const scenes = [...document.querySelectorAll<HTMLElement>("[data-project-scene]")];
+  const progress = document.querySelector<HTMLElement>("[data-film-progress]");
+  const counter = document.querySelector<HTMLElement>("[data-film-counter]");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const chapterTotal = sequence?.dataset.chapterTotal ?? "00";
-  const identityScene = "identity";
-  const projectScenes = titles.slice(1).map((title) => title.dataset.cinematicTitle).filter((scene): scene is string => Boolean(scene));
-  const firstProjectScene = projectScenes[0];
+  let frame = 0;
+  let activeScene = -1;
 
-  let currentScene = identityScene;
-  let requestedScene = identityScene;
-  let transitioning = false;
-  let titleController: EffectController | undefined;
+  const clamp = (value: number, minimum = 0, maximum = 1) => Math.min(maximum, Math.max(minimum, value));
+  const smoothstep = (start: number, end: number, value: number) => {
+    const point = clamp((value - start) / (end - start));
+    return point * point * (3 - 2 * point);
+  };
 
-  const applyTitleState = (scene: string) => {
-    titles.forEach((title) => {
-      const active = title.dataset.cinematicTitle === scene;
-      title.style.visibility = active ? "visible" : "hidden";
-      title.style.transform = "scale(1)";
-      title.setAttribute("aria-hidden", String(!active));
-      title.inert = !active;
+  const activateScene = (index: number) => {
+    if (index === activeScene) return;
+    activeScene = index;
+    scenes.forEach((scene, sceneIndex) => {
+      const active = sceneIndex === index;
+      scene.setAttribute("aria-hidden", String(!active));
+      scene.inert = !active;
+    });
+    if (counter) counter.textContent = `${String(index + 1).padStart(2, "0")} / ${String(scenes.length).padStart(2, "0")}`;
+    const name = scenes[index]?.dataset.projectScene;
+    if (name) window.dispatchEvent(new CustomEvent("landing:scene", { detail: { name, reduced: reducedMotion } }));
+  };
+
+  const render = () => {
+    frame = 0;
+    if (heroScroll && heroStage) {
+      const rect = heroScroll.getBoundingClientRect();
+      const distance = Math.max(1, heroScroll.offsetHeight - window.innerHeight);
+      const heroProgress = clamp(-rect.top / distance);
+      const fade = reducedMotion ? 1 : 1 - smoothstep(.54, .96, heroProgress);
+      heroStage.style.setProperty("--hero-progress", heroProgress.toFixed(4));
+      heroStage.style.setProperty("--hero-fade", fade.toFixed(4));
+      heroStage.style.setProperty("--hero-scale", String(reducedMotion ? 1 : 1 - heroProgress * .045));
+      heroStage.style.setProperty("--hero-shift", `${reducedMotion ? 0 : heroProgress * -3.5}vh`);
+    }
+
+    if (!workFilm || scenes.length === 0) return;
+    const rect = workFilm.getBoundingClientRect();
+    const distance = Math.max(1, workFilm.offsetHeight - window.innerHeight);
+    const filmProgress = clamp(-rect.top / distance);
+    const travel = clamp((filmProgress - .09) / .82) * (scenes.length - 1);
+    const nearest = Math.round(travel);
+    activateScene(nearest);
+    progress?.style.setProperty("transform", `scaleY(${filmProgress})`);
+    workFilm.style.setProperty("--film-progress", filmProgress.toFixed(4));
+
+    scenes.forEach((scene, index) => {
+      const sceneDistance = index - travel;
+      const magnitude = Math.abs(sceneDistance);
+      const opacity = clamp(1 - magnitude * 1.08);
+      scene.style.setProperty("--scene-opacity", opacity.toFixed(4));
+      scene.style.setProperty("--scene-shift", `${sceneDistance * 8}vh`);
+      scene.style.setProperty("--scene-scale", String(1 - Math.min(magnitude, 1) * .035));
+      scene.style.setProperty("--scene-blur", `${reducedMotion ? 0 : Math.min(magnitude * 8, 8)}px`);
+      scene.style.visibility = opacity < .015 ? "hidden" : "visible";
     });
   };
 
-  const clearProofs = () => {
-    proofs.forEach((proof) => {
-      proof.style.opacity = "0";
-      proof.style.visibility = "hidden";
-      proof.setAttribute("aria-hidden", "true");
-    });
-  };
-
-  const showProof = async (scene: string) => {
-    const proof = proofMap.get(scene);
-    if (!proof) return;
-    proof.style.visibility = "visible";
-    proof.style.opacity = "1";
-    proof.setAttribute("aria-hidden", "false");
-    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-    window.dispatchEvent(new CustomEvent("landing:proof", { detail: { name: scene, reduced: reducedMotion } }));
-  };
-
-  const enterWorkMode = (scene: string) => {
-    stage?.classList.add("work-mode");
-    intro?.classList.add("hidden");
-    if (number) {
-      const index = projectScenes.indexOf(scene) + 1;
-      number.textContent = `${String(index).padStart(2, "0")} / ${chapterTotal}`;
-      number.setAttribute("aria-hidden", "false");
-    }
-  };
-
-  const enterIdentityMode = () => {
-    stage?.classList.remove("work-mode");
-    intro?.classList.remove("hidden");
-    number?.setAttribute("aria-hidden", "true");
-  };
-
-  const transitionTo = async (nextScene: string) => {
-    requestedScene = nextScene;
-    if (transitioning) {
-      titleController?.destroy();
-      return;
-    }
-    if (!stage) return;
-    transitioning = true;
-
-    while (currentScene !== requestedScene) {
-      const destinationScene = requestedScene;
-      const source = titleMap.get(currentScene);
-      const destination = titleMap.get(destinationScene);
-      if (!source || !destination) break;
-
-      clearProofs();
-      if (destinationScene !== identityScene) enterWorkMode(destinationScene);
-
-      titleController?.destroy();
-      titleController = undefined;
-      applyTitleState(currentScene);
-
-      const identityBoundary = (currentScene === identityScene && destinationScene === firstProjectScene)
-        || (currentScene === firstProjectScene && destinationScene === identityScene);
-
-      if (reducedMotion || !identityBoundary) {
-        applyTitleState(destinationScene);
-      } else {
-        try {
-          titleController = createEffect(source, "compress-swap", { secondary: destination, duration: 780 });
-          await titleController.play();
-        } catch {
-          applyTitleState(destinationScene);
-        }
-      }
-
-      currentScene = destinationScene;
-      applyTitleState(currentScene);
-
-      if (currentScene === identityScene) {
-        enterIdentityMode();
-      } else {
-        enterWorkMode(currentScene);
-        if (currentScene === requestedScene) await showProof(currentScene);
-      }
-    }
-
-    transitioning = false;
+  const requestRender = () => {
+    if (!frame) frame = requestAnimationFrame(render);
   };
 
   const setup = async () => {
-    if (!sequence || !stage) return;
     await document.fonts.ready;
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-    applyTitleState(identityScene);
-    clearProofs();
-
-    const observer = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        const scene = (entry.target as HTMLElement).dataset.cinematicChapter;
-        if (scene && titleMap.has(scene)) void transitionTo(scene);
-      }
-    }, { rootMargin: "-48% 0px -48% 0px" });
-
-    chapters.forEach((chapter) => observer.observe(chapter));
+    render();
+    window.addEventListener("scroll", requestRender, { passive: true });
+    window.addEventListener("resize", requestRender, { passive: true });
     window.addEventListener("pagehide", () => {
-      observer.disconnect();
-      titleController?.destroy();
+      window.removeEventListener("scroll", requestRender);
+      window.removeEventListener("resize", requestRender);
+      if (frame) cancelAnimationFrame(frame);
     }, { once: true });
   };
 
@@ -197,45 +211,118 @@ const titleSizes: Record<string, string> = {
 </script>
 
 <style>
-  .cinematic-sequence { position: relative; display: grid; margin-top: -5rem; }
-  .cinematic-stage, .chapters { grid-area: 1 / 1; }
-  .cinematic-stage { --stage-bg: var(--color-bg); --stage-ink: var(--color-text); position: sticky; z-index: 1; top: 0; height: 100svh; overflow: hidden; color: var(--stage-ink); background: var(--stage-bg); transition: color 260ms ease, background-color 260ms ease; }
-  .cinematic-stage.work-mode { --stage-bg: #1d1c1a; --stage-ink: #f4f1ea; }
-  .title-stack { position: absolute; z-index: 3; top: clamp(6rem, 10vh, 8rem); right: clamp(1.25rem, 4vw, 4rem); left: clamp(1.25rem, 4vw, 4rem); height: clamp(5rem, 14vw, 13rem); }
-  h1, h2 { --title-size: clamp(5.5rem, 13vw, 13rem); position: absolute; margin: 0; color: currentColor; font-size: var(--title-size); font-weight: 500; letter-spacing: -.085em; line-height: .76; transform-origin: left center; white-space: nowrap; }
-  h2 { visibility: hidden; }
-  h2 a { color: inherit; text-decoration: none; }
-  .intro { position: absolute; z-index: 3; right: clamp(1.25rem, 5vw, 6rem); bottom: clamp(3rem, 9vh, 7rem); margin: 0; font-size: clamp(1.8rem, 3.6vw, 3.8rem); font-weight: 500; letter-spacing: -.05em; line-height: 1.08; transition: opacity 180ms ease; }
-  .intro.hidden { opacity: 0; }
-  .chapter-number { position: absolute; z-index: 3; top: clamp(2rem, 4vh, 3rem); right: clamp(1.25rem, 4vw, 4rem); color: color-mix(in srgb, currentColor 52%, transparent); font: .68rem var(--font-mono); }
-  .chapter-number[aria-hidden="true"] { visibility: hidden; }
-  .proof-stack { position: absolute; z-index: 2; inset: 28vh 2vw 4vh; display: grid; place-items: center; }
-  .proof-stack :global([data-proof]) { position: absolute; visibility: hidden; opacity: 0; transition: opacity 180ms ease-out; }
-  .chapters { position: relative; z-index: 0; pointer-events: none; }
-  .chapter { height: 100svh; }
-  .identity-chapter { height: 112svh; }
-  .chapter span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .no-script-work { width: min(calc(100% - 3rem), var(--page-width)); margin: 4rem auto; }
-  .no-script-work h1 { position: static; margin: 5rem 0 2rem; font-size: clamp(5rem, 13vw, 11rem); }
-  .no-script-work p { margin: 0 0 8rem; font-size: clamp(1.5rem, 3vw, 2.5rem); line-height: 1.2; }
-  .no-script-work h2 { position: static; visibility: visible; font-size: 2rem; }
-  .no-script-work ol { padding: 0; list-style: none; }
-  .no-script-work li { border-top: 1px solid var(--color-border); }
-  .no-script-work a { display: block; padding: 1rem 0; font-size: 1.5rem; text-decoration: none; }
+  .hero-scroll { position: relative; z-index: 1; height: 138svh; margin-top: -5rem; }
+  .hero-stage { --hero-progress: 0; --hero-fade: 1; --hero-scale: 1; --hero-shift: 0; position: sticky; top: 0; height: 100svh; overflow: hidden; color: var(--color-text); background: var(--color-bg); opacity: var(--hero-fade); transform: translateY(var(--hero-shift)) scale(var(--hero-scale)); transform-origin: 50% 35%; }
+  .hero-grid { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--color-accent); pointer-events: none; }
+  .hero-thread { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--hero-progress)); vector-effect: non-scaling-stroke; }
+  .hero-grid circle { fill: currentColor; opacity: .9; vector-effect: non-scaling-stroke; }
+  .hero-meta { position: absolute; z-index: 2; top: clamp(6.5rem, 13vh, 9rem); right: clamp(1.25rem, 4vw, 4rem); display: grid; grid-template-columns: repeat(3, auto); gap: clamp(1rem, 3vw, 3rem); font: .64rem var(--font-mono); letter-spacing: .03em; text-transform: uppercase; }
+  .hero-meta span + span { position: relative; }
+  .hero-meta span + span::before { position: absolute; top: .6em; left: calc(clamp(1rem, 3vw, 3rem) / -2); width: 3px; height: 3px; border-radius: 50%; background: var(--color-accent); content: ""; }
+  .hero-stage h1 { position: absolute; z-index: 2; top: clamp(9rem, 19vh, 12rem); left: clamp(1.25rem, 3.4vw, 3.25rem); margin: 0; font-size: clamp(5.6rem, 13.6vw, 13.25rem); font-weight: 500; letter-spacing: -.095em; line-height: .7; }
+  .hero-stage h1 span { display: block; width: fit-content; }
+  .hero-stage h1 span:nth-child(2) { margin-left: 10vw; }
+  .hero-stage h1 span:nth-child(3) { margin-left: 3vw; }
+  .hero-accent { position: relative; color: var(--color-accent); font-style: italic; }
+  .hero-accent::after { position: absolute; right: -.35em; bottom: -.12em; left: .06em; height: .12em; border-top: 2px solid currentColor; border-radius: 50%; content: ""; transform: rotate(-2deg) scaleX(calc(.35 + var(--hero-progress) * .65)); transform-origin: left; }
+  .hero-intro { position: absolute; z-index: 2; right: clamp(1.25rem, 5vw, 5rem); bottom: clamp(7rem, 15vh, 9rem); margin: 0; max-width: 29rem; font-size: clamp(1.35rem, 2.7vw, 2.7rem); font-weight: 500; letter-spacing: -.045em; line-height: 1.08; }
+  .hero-index { position: absolute; z-index: 2; bottom: clamp(2rem, 4vh, 3rem); left: clamp(1.25rem, 3.4vw, 3.25rem); display: grid; grid-template-columns: repeat(3, auto); gap: clamp(1.25rem, 4vw, 4.5rem); margin: 0; padding: 0; list-style: none; }
+  .hero-index li { display: grid; grid-template-columns: auto auto; gap: .65rem; align-items: baseline; color: var(--color-text-sub); font: .62rem var(--font-mono); }
+  .hero-index li span:first-child { color: var(--color-accent); }
+  .scroll-cue { position: absolute; right: clamp(1.25rem, 4vw, 4rem); bottom: 2.2rem; display: flex; gap: .8rem; align-items: center; color: var(--color-text-sub); font: .6rem var(--font-mono); text-transform: uppercase; }
+  .scroll-cue i { position: relative; width: 2.75rem; height: 1px; overflow: hidden; background: var(--color-border); }
+  .scroll-cue i::after { position: absolute; inset: 0; background: var(--color-accent); content: ""; animation: cue 1.8s ease-in-out infinite; transform: translateX(-100%); }
+
+  .work-film { --film-bg: #171714; --film-ink: #f2eee5; --film-muted: #8b887f; --film-line: #383731; position: relative; z-index: 3; display: grid; margin-top: -35svh; color: var(--film-ink); background: var(--film-bg); border-radius: clamp(1.5rem, 3vw, 3rem) clamp(1.5rem, 3vw, 3rem) 0 0; }
+  .film-stage, .film-chapters { grid-area: 1 / 1; }
+  .film-stage { position: sticky; z-index: 2; top: 0; height: 100svh; overflow: hidden; background: var(--film-bg); border-radius: inherit; }
+  .film-stage::before { position: absolute; inset: 0; background: radial-gradient(circle at calc(20% + var(--film-progress) * 60%) 58%, rgba(160, 68, 50, .11), transparent 31%), linear-gradient(120deg, transparent 0 49.9%, rgba(255,255,255,.022) 50% 50.1%, transparent 50.2%); content: ""; pointer-events: none; }
+  .film-header { position: absolute; z-index: 5; top: clamp(1.5rem, 3.5vh, 2.5rem); right: clamp(1.25rem, 3vw, 3rem); left: clamp(2.6rem, 5vw, 5.5rem); display: flex; justify-content: space-between; color: var(--film-muted); font: .61rem var(--font-mono); letter-spacing: .05em; text-transform: uppercase; }
+  .film-progress { position: absolute; z-index: 5; top: clamp(4rem, 8vh, 6rem); bottom: clamp(4rem, 8vh, 6rem); left: clamp(1.25rem, 2.3vw, 2.5rem); width: 1px; background: var(--film-line); }
+  .film-progress i { position: absolute; inset: 0; background: var(--color-accent); transform: scaleY(0); transform-origin: top; }
+  .film-progress span { position: absolute; top: calc(var(--mark) * 100%); left: 50%; width: 7px; height: 7px; border: 1px solid var(--color-accent); border-radius: 50%; background: var(--film-bg); transform: translate(-50%, -50%); }
+  .project-scenes { position: absolute; inset: clamp(4.5rem, 10vh, 7rem) clamp(1.25rem, 4vw, 4.5rem) clamp(4rem, 9vh, 6rem) clamp(3.5rem, 7vw, 7.5rem); }
+  .project-scene { --scene-opacity: 0; --scene-shift: 8vh; --scene-scale: .965; --scene-blur: 8px; position: absolute; inset: 0; display: grid; grid-template-columns: minmax(18rem, .78fr) minmax(30rem, 1.22fr); gap: clamp(2rem, 5vw, 6rem); align-items: center; opacity: var(--scene-opacity); filter: blur(var(--scene-blur)); transform: translateY(var(--scene-shift)) scale(var(--scene-scale)); transform-origin: center; will-change: opacity, filter, transform; }
+  .scene-copy { display: flex; flex-direction: column; align-items: flex-start; }
+  .scene-label { display: flex; gap: .85rem; align-items: center; margin-bottom: clamp(1.25rem, 3vh, 2.25rem); color: var(--film-muted); font: .62rem var(--font-mono); text-transform: uppercase; }
+  .scene-label span:first-child { display: grid; width: 1.8rem; height: 1.8rem; border: 1px solid var(--color-accent); border-radius: 50%; color: var(--color-accent); place-items: center; }
+  .scene-copy h2 { margin: 0; max-width: 7.2em; font-size: clamp(3.1rem, 5.4vw, 6.2rem); font-weight: 500; letter-spacing: -.075em; line-height: .83; }
+  .scene-description { max-width: 30rem; margin: clamp(1.5rem, 3vh, 2.4rem) 0 0; color: #b8b4aa; font-size: clamp(.98rem, 1.35vw, 1.2rem); line-height: 1.5; }
+  .scene-copy ul { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.5rem 0 0; padding: 0; list-style: none; }
+  .scene-copy li { padding: .34rem .6rem; border: 1px solid var(--film-line); border-radius: 999px; color: var(--film-muted); font: .56rem var(--font-mono); }
+  .scene-copy a { display: inline-flex; gap: 1rem; align-items: center; margin-top: clamp(1.7rem, 3.5vh, 2.8rem); padding-bottom: .35rem; border-bottom: 1px solid var(--color-accent); font-size: .76rem; text-decoration: none; }
+  .scene-copy a span { color: var(--color-accent); transition: transform 180ms ease; }
+  .scene-copy a:hover span, .scene-copy a:focus-visible span { transform: translate(.2rem, -.2rem); }
+  .scene-artifact { display: grid; min-width: 0; place-items: center; }
+  .film-footer { position: absolute; z-index: 5; right: clamp(1.25rem, 3vw, 3rem); bottom: clamp(1.5rem, 3.5vh, 2.5rem); display: flex; gap: .75rem; align-items: center; color: var(--film-muted); font: .56rem var(--font-mono); text-transform: uppercase; }
+  .film-footer i { width: 4rem; height: 1px; background: linear-gradient(90deg, var(--color-accent) calc(var(--film-progress) * 100%), var(--film-line) 0); }
+  .film-chapters { position: relative; z-index: 1; pointer-events: none; }
+  .film-chapters > div { height: 135svh; }
+  .film-chapters > div:first-child, .film-chapters > div:last-child { height: 150svh; }
+  .film-chapters span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  .landing-coda { --film-bg: #171714; --film-ink: #f2eee5; --film-muted: #8b887f; --film-line: #383731; position: relative; z-index: 3; min-height: 108svh; padding: clamp(7rem, 15vh, 12rem) clamp(1.25rem, 4vw, 4rem) clamp(8rem, 14vh, 11rem); color: var(--film-ink); background: var(--film-bg); }
+  .coda-rule { display: grid; grid-template-columns: auto 1fr auto; gap: 1.25rem; align-items: center; color: var(--film-muted); }
+  .coda-rule span { width: 7px; height: 7px; border: 1px solid var(--color-accent); border-radius: 50%; }
+  .coda-rule i { height: 1px; background: linear-gradient(90deg, var(--color-accent), var(--film-line)); }
+  .landing-coda > p { margin: clamp(3rem, 7vh, 5rem) 0 0; color: var(--film-muted); font: .66rem var(--font-mono); letter-spacing: .05em; text-transform: uppercase; }
+  .landing-coda h2 { margin: clamp(1.5rem, 4vh, 3rem) 0 0; font-size: clamp(4.5rem, 11.5vw, 12rem); font-weight: 500; letter-spacing: -.09em; line-height: .74; }
+  .landing-coda h2 em { color: var(--color-accent); font-weight: inherit; }
+  .landing-coda h2 em:last-child { margin-left: 11vw; }
+  .coda-footer { position: absolute; right: clamp(1.25rem, 4vw, 4rem); bottom: clamp(5rem, 9vh, 7rem); left: clamp(1.25rem, 4vw, 4rem); display: flex; align-items: end; justify-content: space-between; }
+  .coda-footer a { display: flex; gap: 1rem; padding-bottom: .5rem; border-bottom: 1px solid var(--color-accent); font-size: clamp(1rem, 1.6vw, 1.3rem); text-decoration: none; }
+  .coda-footer a span { color: var(--color-accent); }
+  .coda-footer > span { color: var(--film-muted); font: .6rem var(--font-mono); text-transform: uppercase; }
+
+  @keyframes cue { 0% { transform: translateX(-100%); } 50%, 100% { transform: translateX(100%); } }
+
+  @media (max-width: 900px) {
+    .hero-stage h1 { font-size: clamp(5.2rem, 15vw, 9rem); }
+    .hero-index { grid-template-columns: 1fr; gap: .35rem; }
+    .hero-index li { grid-template-columns: 1.7rem auto; }
+    .project-scenes { inset: 5.5rem 1.25rem 4.25rem 3.25rem; }
+    .project-scene { grid-template-columns: minmax(15rem, .75fr) minmax(24rem, 1.25fr); gap: 2rem; }
+    .scene-copy h2 { font-size: clamp(2.8rem, 5.6vw, 4.4rem); }
+  }
 
   @media (max-width: 700px) {
-    .cinematic-sequence { margin-top: -4.25rem; }
-    .title-stack { top: 11vh; right: 1rem; left: 1rem; }
-    h1, h2 { --title-size: clamp(4.4rem, 19vw, 6.2rem); }
-    h2 { font-size: min(var(--title-size), 15vw); }
-    .intro { right: 1rem; bottom: 10vh; left: 1rem; font-size: clamp(1.55rem, 7vw, 2.4rem); }
-    .chapter-number { top: 4vh; right: 1rem; }
-    .proof-stack { inset: 27vh 0 5vh; }
-    .identity-chapter { height: 106svh; }
-    .chapter { height: 88svh; }
+    .hero-scroll { height: 132svh; margin-top: -4.25rem; }
+    .hero-meta { top: 5.75rem; right: 1rem; left: 1rem; grid-template-columns: 1fr auto; justify-content: space-between; }
+    .hero-meta span:nth-child(2) { display: none; }
+    .hero-meta span + span::before { display: none; }
+    .hero-stage h1 { top: 19vh; left: 1rem; font-size: clamp(4.5rem, 21vw, 7rem); line-height: .73; }
+    .hero-stage h1 span:nth-child(2) { margin-left: 4vw; }
+    .hero-stage h1 span:nth-child(3) { margin-left: 0; }
+    .hero-intro { right: 1rem; bottom: 19vh; left: 12vw; font-size: clamp(1.25rem, 6.4vw, 2rem); }
+    .hero-index { bottom: 1.25rem; left: 1rem; }
+    .hero-index li { font-size: .52rem; }
+    .scroll-cue { right: 1rem; bottom: 1.45rem; }
+    .scroll-cue span { display: none; }
+    .hero-grid { transform: translateX(13vw); }
+    .work-film { margin-top: -32svh; border-radius: 1.5rem 1.5rem 0 0; }
+    .film-header { top: 1.35rem; right: 1rem; left: 2.65rem; }
+    .film-progress { top: 4rem; bottom: 4rem; left: 1.2rem; }
+    .project-scenes { inset: 4.25rem .85rem 3.4rem 2.65rem; }
+    .project-scene { grid-template: auto minmax(0, 1fr) / 1fr; gap: 1.15rem; align-content: center; }
+    .scene-copy { display: grid; grid-template-columns: 1fr auto; align-items: start; }
+    .scene-label { grid-column: 1 / -1; margin-bottom: .8rem; }
+    .scene-label span:first-child { width: 1.55rem; height: 1.55rem; }
+    .scene-copy h2 { grid-column: 1 / -1; max-width: 9em; font-size: clamp(2.5rem, 11.5vw, 4rem); line-height: .86; }
+    .scene-description { grid-column: 1 / -1; margin-top: .85rem; font-size: .86rem; line-height: 1.4; }
+    .scene-copy ul { display: none; }
+    .scene-copy a { grid-column: 1 / -1; margin-top: .9rem; font-size: .66rem; }
+    .scene-artifact { align-self: stretch; min-height: 0; }
+    .film-footer { right: .9rem; bottom: 1.15rem; }
+    .film-chapters > div, .film-chapters > div:first-child, .film-chapters > div:last-child { height: 125svh; }
+    .landing-coda { min-height: 100svh; padding: 7rem 1rem 9rem; }
+    .landing-coda h2 { font-size: clamp(4rem, 18vw, 6.5rem); line-height: .78; }
+    .landing-coda h2 em:last-child { margin-left: 0; }
+    .coda-footer { right: 1rem; bottom: 5rem; left: 1rem; align-items: start; flex-direction: column; gap: 2rem; }
+    .coda-footer > span { order: -1; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .cinematic-stage, .intro, .proof-stack :global([data-proof]) { transition: none; }
+    .hero-stage, .project-scene { transform: none !important; filter: none !important; }
+    .scroll-cue i::after { animation: none; }
   }
 </style>
