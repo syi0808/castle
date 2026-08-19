@@ -1,0 +1,65 @@
+---
+import type { BlogPost } from "../../lib/posts";
+
+interface Props { posts: BlogPost[]; }
+const { posts } = Astro.props;
+const formatDate = (date: Date) => `${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
+---
+
+<section class="quiet-writing" data-quiet-writing>
+  <header><h2>Writing</h2><a href={`${import.meta.env.BASE_URL}archive`}>Archive →</a></header>
+  <ol>
+    {posts.map((post) => (
+      <li><a href={`${import.meta.env.BASE_URL}${post.id}`}><time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time><span data-writing-title>{post.data.title}</span></a></li>
+    ))}
+  </ol>
+</section>
+
+<script>
+  import { annotate } from "@rougher-stuff/rough-notation";
+  import type { RoughAnnotation } from "@rougher-stuff/rough-notation";
+
+  const section = document.querySelector<HTMLElement>("[data-quiet-writing]");
+  const annotations: RoughAnnotation[] = [];
+
+  const setup = async () => {
+    if (!section) return;
+    await document.fonts.ready;
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    const accent = getComputedStyle(document.documentElement).getPropertyValue("--color-accent").trim();
+
+    section.querySelectorAll<HTMLElement>("[data-writing-title]").forEach((title, index) => {
+      const annotation = annotate(title, { type: "underline", color: accent, strokeWidth: 1.6, iterations: 1, roughness: 1.25, seed: 43 + index, padding: [0, 0, 4, 0], animationDuration: 320 });
+      annotations.push(annotation);
+      const link = title.closest<HTMLAnchorElement>("a");
+      link?.addEventListener("pointerenter", () => annotation.show({ duration: 320 }));
+      link?.addEventListener("pointerleave", () => annotation.hide());
+      link?.addEventListener("focus", () => annotation.show({ duration: 320 }));
+      link?.addEventListener("blur", () => annotation.hide());
+    });
+
+    window.addEventListener("pagehide", () => annotations.forEach((annotation) => annotation.remove()), { once: true });
+  };
+
+  void setup();
+</script>
+
+<style>
+  .quiet-writing { width: min(calc(100% - 3rem), var(--page-width)); margin: 0 auto; padding: clamp(9rem, 18vw, 16rem) 0 3rem; }
+  header { display: flex; align-items: end; justify-content: space-between; margin-bottom: clamp(3rem, 7vw, 6rem); }
+  h2 { margin: 0; font-size: clamp(4.5rem, 10vw, 9rem); font-weight: 500; letter-spacing: -.075em; line-height: .8; }
+  header a { color: var(--color-text-sub); font-size: .8rem; text-decoration: none; }
+  header a:hover, header a:focus-visible { color: var(--color-text); }
+  ol { margin: 0; padding: 0; border-top: 1px solid var(--color-border); list-style: none; }
+  li { border-bottom: 1px solid var(--color-border); }
+  li a { display: grid; grid-template-columns: 5rem 1fr; align-items: center; min-height: clamp(5rem, 9vw, 7.5rem); text-decoration: none; }
+  time { color: var(--color-text-sub); font: .68rem var(--font-mono); }
+  [data-writing-title] { width: fit-content; font-size: clamp(1.15rem, 2.2vw, 1.75rem); font-weight: 500; letter-spacing: -.025em; line-height: 1.25; }
+
+  @media (max-width: 700px) {
+    .quiet-writing { width: calc(100% - 2rem); padding-top: 8rem; }
+    h2 { font-size: clamp(4rem, 20vw, 6rem); }
+    li a { grid-template-columns: 3.75rem 1fr; min-height: 5.5rem; }
+    [data-writing-title] { font-size: 1.05rem; }
+  }
+</style>

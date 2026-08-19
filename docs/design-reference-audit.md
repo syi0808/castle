@@ -54,15 +54,15 @@ This document records principles to combine, not surfaces to imitate.
 - Repeated fade-up sections
 - Mobile interactions that block the first link activation
 
-## Chosen prototype
+## Chosen sequence
 
-The type reel keeps one useful idea from direction B: project names share one fixed typographic stage. Everything else is removed unless it comes from the authored visual libraries.
+The landing uses one shared identity-to-work stage. Each transition and proof has a single job, documented in `landing-cinematic-blueprint.md` before implementation.
 
-- The hero is a static composition with no supporting illustration.
-- `rougher-stuff` uses the package's seeded rough notation underline.
-- Project changes use Tradimation's `compress-swap`.
-- `trandimation` uses the package's `text-punch` once after settling.
-- `svgr2` and `zctf` remain precise until they have authored visual assets.
-- A separate lab route exposes meaningful animation frames for visual review.
+- `Yein Sung` occupies the same title slot as the work, so the first `compress-swap` is a scene change rather than decoration.
+- `rougher-stuff` demonstrates the real authored notation primitives on precise typography.
+- `trandimation` demonstrates a single connected-texture `smear` from origin to registered destination.
+- `svgr2` keeps one SVG fixture fixed while its textual representation changes from source to component.
+- `zctf` shows the actual binary document regions and measured first-access evidence without inventing a speed animation.
+- Writing ends the sequence as a quiet, mostly static epilogue.
 
-The direction must work as a static screenshot before motion is considered.
+The direction must work as five intentional static frames before motion connects them.

@@ -1,8 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import IdentityMachine from "../components/identity/IdentityMachine.astro";
-import WorkIndex from "../components/work/WorkIndex.astro";
-import WritingIndex from "../components/writing/WritingIndex.astro";
+import CinematicSequence from "../components/landing/CinematicSequence.astro";
+import QuietWriting from "../components/landing/QuietWriting.astro";
 import JsonLd from "../components/JsonLd.astro";
 import { getSortedPosts } from "../lib/posts";
 import { SITE, AUTHOR } from "../lib/seo";
@@ -11,17 +10,6 @@ const jsonLd = [{ "@context": "https://schema.org", "@type": "WebSite", name: SI
 ---
 <BaseLayout title="Yein Sung — Software Engineer" description="Tools, interfaces, open source, and writing by Yein Sung.">
   {jsonLd.map((data) => <JsonLd data={data} />)}
-  <div class="site-shell">
-    <section class="hero">
-      <div class="identity"><h1>Yein<br />Sung</h1><p class="intro">I make tools, interfaces,<br />and things I wish existed.</p></div>
-      <div class="machine-wrap"><IdentityMachine /></div>
-    </section>
-    <WorkIndex />
-    <div class="writing-wrap"><WritingIndex posts={recentPosts} /></div>
-  </div>
+  <CinematicSequence />
+  <QuietWriting posts={recentPosts} />
 </BaseLayout>
-<style>
-  .hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(26rem, .95fr); align-items: start; min-height: 122svh; padding: 3rem 0 7rem; } .identity { position: relative; z-index: 1; padding-top: 12vh; } h1 { margin: 0; font-size: clamp(5.5rem, 10.5vw, 10.8rem); font-weight: 600; letter-spacing: -.09em; line-height: .76; } .intro { max-width: 12em; margin: 3.5rem 0 0; font-size: clamp(1.5rem, 2.35vw, 2.15rem); font-weight: 500; line-height: 1.28; letter-spacing: -.04em; } .machine-wrap { position: sticky; top: 12vh; display: grid; min-width: 0; padding-top: 5vh; place-items: center; } .writing-wrap { padding-top: var(--section-space); }
-  @media (max-width: 900px) { .hero { grid-template-columns: 1fr; min-height: 0; padding: 5rem 0 7rem; } .identity { padding-top: 0; } h1 { font-size: clamp(5.3rem, 22vw, 9rem); } .intro { font-size: clamp(1.4rem, 5.5vw, 2rem); } .machine-wrap { position: static; margin-top: 2rem; padding-top: 0; } }
-  @media (max-width: 520px) { .hero { padding-top: 3.5rem; } }
-</style>

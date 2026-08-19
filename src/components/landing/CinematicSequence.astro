@@ -1,0 +1,229 @@
+---
+import RougherProof from "./RougherProof.astro";
+import TradimationProof from "./TradimationProof.astro";
+import Svgr2Proof from "./Svgr2Proof.astro";
+import ZctfProof from "./ZctfProof.astro";
+import { projects } from "../../data/projects";
+
+const featured = projects.filter((project) => project.featured).sort((a, b) => a.order - b.order);
+const titleSizes: Record<string, string> = {
+  "rougher-stuff": "clamp(4rem, 11vw, 11rem)",
+  trandimation: "clamp(4rem, 11.5vw, 11.5rem)",
+  svgr2: "clamp(5rem, 13vw, 13rem)",
+  zctf: "clamp(5rem, 13vw, 13rem)",
+};
+---
+
+<section class="cinematic-sequence" data-cinematic-sequence>
+  <div class="cinematic-stage" data-cinematic-stage>
+    <div class="title-stack" aria-live="polite">
+      <h1 data-cinematic-title="0">Yein Sung</h1>
+      {featured.map((project, index) => (
+        <h2 data-cinematic-title={index + 1} aria-hidden="true" inert style={`--title-size:${titleSizes[project.name]}`}>
+          <a href={project.website ?? project.github} target="_blank" rel="noopener noreferrer">{project.name}</a>
+        </h2>
+      ))}
+    </div>
+
+    <p class="intro" data-cinematic-intro>I make tools, interfaces,<br />and things I wish existed.</p>
+    <span class="chapter-number" data-cinematic-number aria-hidden="true">01 / 04</span>
+
+    <div class="proof-stack">
+      <RougherProof />
+      <TradimationProof />
+      <Svgr2Proof />
+      <ZctfProof />
+    </div>
+  </div>
+
+  <div class="chapters" aria-hidden="true">
+    <div class="chapter identity-chapter" data-cinematic-chapter="0"></div>
+    {featured.map((project, index) => <div class="chapter" data-cinematic-chapter={index + 1}><span>{project.name}</span></div>)}
+  </div>
+
+  <noscript>
+    <style>
+      .cinematic-stage, .chapters { display: none !important; }
+      .cinematic-sequence { display: block !important; margin-top: 0 !important; }
+    </style>
+    <section class="no-script-work">
+      <h1>Yein Sung</h1>
+      <p>I make tools, interfaces,<br />and things I wish existed.</p>
+      <h2>Selected work</h2>
+      <ol>{featured.map((project) => <li><a href={project.website ?? project.github}>{project.name}</a></li>)}</ol>
+    </section>
+  </noscript>
+</section>
+
+<script>
+  import { createEffect } from "@tradimation/core";
+  import type { EffectController } from "@tradimation/core";
+
+  const sequence = document.querySelector<HTMLElement>("[data-cinematic-sequence]");
+  const stage = sequence?.querySelector<HTMLElement>("[data-cinematic-stage]");
+  const titles = [...(sequence?.querySelectorAll<HTMLElement>("[data-cinematic-title]") ?? [])];
+  const proofs = [...(sequence?.querySelectorAll<HTMLElement>("[data-proof]") ?? [])];
+  const chapters = [...(sequence?.querySelectorAll<HTMLElement>("[data-cinematic-chapter]") ?? [])];
+  const intro = sequence?.querySelector<HTMLElement>("[data-cinematic-intro]");
+  const number = sequence?.querySelector<HTMLElement>("[data-cinematic-number]");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  let currentIndex = 0;
+  let requestedIndex = 0;
+  let transitioning = false;
+  let titleController: EffectController | undefined;
+
+  const applyTitleState = (index: number) => {
+    titles.forEach((title, titleIndex) => {
+      const active = titleIndex === index;
+      title.style.visibility = active ? "visible" : "hidden";
+      title.style.transform = "scale(1)";
+      title.setAttribute("aria-hidden", String(!active));
+      title.inert = !active;
+    });
+  };
+
+  const clearProofs = () => {
+    proofs.forEach((proof) => {
+      proof.style.opacity = "0";
+      proof.style.visibility = "hidden";
+      proof.setAttribute("aria-hidden", "true");
+    });
+  };
+
+  const showProof = async (projectIndex: number) => {
+    const proof = proofs[projectIndex];
+    if (!proof) return;
+    proof.style.visibility = "visible";
+    proof.style.opacity = "1";
+    proof.setAttribute("aria-hidden", "false");
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    window.dispatchEvent(new CustomEvent("landing:proof", { detail: { index: projectIndex, reduced: reducedMotion } }));
+  };
+
+  const enterWorkMode = (index: number) => {
+    stage?.classList.add("work-mode");
+    intro?.classList.add("hidden");
+    if (number) {
+      number.textContent = `${String(index).padStart(2, "0")} / 04`;
+      number.setAttribute("aria-hidden", "false");
+    }
+  };
+
+  const enterIdentityMode = () => {
+    stage?.classList.remove("work-mode");
+    intro?.classList.remove("hidden");
+    number?.setAttribute("aria-hidden", "true");
+  };
+
+  const transitionTo = async (nextIndex: number) => {
+    requestedIndex = nextIndex;
+    if (transitioning || !stage) return;
+    transitioning = true;
+
+    while (currentIndex !== requestedIndex) {
+      const destinationIndex = requestedIndex;
+      const source = titles[currentIndex];
+      const destination = titles[destinationIndex];
+      if (!source || !destination) break;
+
+      clearProofs();
+      if (destinationIndex > 0) enterWorkMode(destinationIndex);
+
+      titleController?.destroy();
+      titleController = undefined;
+      applyTitleState(currentIndex);
+
+      if (reducedMotion) {
+        applyTitleState(destinationIndex);
+      } else {
+        try {
+          titleController = createEffect(source, "compress-swap", { secondary: destination, duration: 780 });
+          await titleController.play();
+        } catch {
+          applyTitleState(destinationIndex);
+        }
+      }
+
+      currentIndex = destinationIndex;
+      applyTitleState(currentIndex);
+
+      if (currentIndex === 0) {
+        enterIdentityMode();
+      } else {
+        enterWorkMode(currentIndex);
+        if (currentIndex === requestedIndex) await showProof(currentIndex - 1);
+      }
+    }
+
+    transitioning = false;
+  };
+
+  const setup = async () => {
+    if (!sequence || !stage) return;
+    await document.fonts.ready;
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    applyTitleState(0);
+    clearProofs();
+
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const index = Number((entry.target as HTMLElement).dataset.cinematicChapter);
+        if (Number.isFinite(index)) void transitionTo(index);
+      }
+    }, { rootMargin: "-48% 0px -48% 0px" });
+
+    chapters.forEach((chapter) => observer.observe(chapter));
+    window.addEventListener("pagehide", () => {
+      observer.disconnect();
+      titleController?.destroy();
+    }, { once: true });
+  };
+
+  void setup();
+</script>
+
+<style>
+  .cinematic-sequence { position: relative; display: grid; margin-top: -5rem; }
+  .cinematic-stage, .chapters { grid-area: 1 / 1; }
+  .cinematic-stage { --stage-bg: var(--color-bg); --stage-ink: var(--color-text); position: sticky; z-index: 1; top: 0; height: 100svh; overflow: hidden; color: var(--stage-ink); background: var(--stage-bg); transition: color 260ms ease, background-color 260ms ease; }
+  .cinematic-stage.work-mode { --stage-bg: #1d1c1a; --stage-ink: #f4f1ea; }
+  .title-stack { position: absolute; z-index: 3; top: clamp(6rem, 10vh, 8rem); right: clamp(1.25rem, 4vw, 4rem); left: clamp(1.25rem, 4vw, 4rem); height: clamp(5rem, 14vw, 13rem); }
+  h1, h2 { --title-size: clamp(5.5rem, 13vw, 13rem); position: absolute; margin: 0; color: currentColor; font-size: var(--title-size); font-weight: 500; letter-spacing: -.085em; line-height: .76; transform-origin: left center; white-space: nowrap; }
+  h2 { visibility: hidden; }
+  h2 a { color: inherit; text-decoration: none; }
+  .intro { position: absolute; z-index: 3; right: clamp(1.25rem, 5vw, 6rem); bottom: clamp(3rem, 9vh, 7rem); margin: 0; font-size: clamp(1.8rem, 3.6vw, 3.8rem); font-weight: 500; letter-spacing: -.05em; line-height: 1.08; transition: opacity 180ms ease; }
+  .intro.hidden { opacity: 0; }
+  .chapter-number { position: absolute; z-index: 3; top: clamp(2rem, 4vh, 3rem); right: clamp(1.25rem, 4vw, 4rem); color: color-mix(in srgb, currentColor 52%, transparent); font: .68rem var(--font-mono); }
+  .chapter-number[aria-hidden="true"] { visibility: hidden; }
+  .proof-stack { position: absolute; z-index: 2; inset: 28vh 2vw 4vh; display: grid; place-items: center; }
+  .proof-stack :global([data-proof]) { position: absolute; visibility: hidden; opacity: 0; transition: opacity 180ms ease-out; }
+  .chapters { position: relative; z-index: 0; pointer-events: none; }
+  .chapter { height: 100svh; }
+  .identity-chapter { height: 112svh; }
+  .chapter span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .no-script-work { width: min(calc(100% - 3rem), var(--page-width)); margin: 4rem auto; }
+  .no-script-work h1 { position: static; margin: 5rem 0 2rem; font-size: clamp(5rem, 13vw, 11rem); }
+  .no-script-work p { margin: 0 0 8rem; font-size: clamp(1.5rem, 3vw, 2.5rem); line-height: 1.2; }
+  .no-script-work h2 { position: static; visibility: visible; font-size: 2rem; }
+  .no-script-work ol { padding: 0; list-style: none; }
+  .no-script-work li { border-top: 1px solid var(--color-border); }
+  .no-script-work a { display: block; padding: 1rem 0; font-size: 1.5rem; text-decoration: none; }
+
+  @media (max-width: 700px) {
+    .cinematic-sequence { margin-top: -4.25rem; }
+    .title-stack { top: 11vh; right: 1rem; left: 1rem; }
+    h1, h2 { --title-size: clamp(4.4rem, 19vw, 6.2rem); }
+    h2 { font-size: min(var(--title-size), 15vw); }
+    .intro { right: 1rem; bottom: 10vh; left: 1rem; font-size: clamp(1.55rem, 7vw, 2.4rem); }
+    .chapter-number { top: 4vh; right: 1rem; }
+    .proof-stack { inset: 27vh 0 5vh; }
+    .identity-chapter { height: 106svh; }
+    .chapter { height: 88svh; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cinematic-stage, .intro, .proof-stack :global([data-proof]) { transition: none; }
+  }
+</style>

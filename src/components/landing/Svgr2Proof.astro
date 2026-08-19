@@ -1,0 +1,67 @@
+<div class="svgr2-proof" data-proof="2" aria-hidden="true">
+  <div class="fixture">
+    <svg viewBox="0 0 16 16" role="presentation"><path d="M8 1l7 14H1L8 1z" /></svg>
+    <div class="representation" aria-live="polite">
+      <code data-svgr-source aria-hidden="false">&lt;svg&gt;</code>
+      <code data-svgr-result aria-hidden="true">&lt;Icon /&gt;</code>
+    </div>
+  </div>
+  <div class="benchmark"><strong>29.99×</strong><span>JSX · tiny fixture</span></div>
+</div>
+
+<script>
+  import { createEffect } from "@tradimation/core";
+  import type { EffectController } from "@tradimation/core";
+
+  const root = document.querySelector<HTMLElement>(".svgr2-proof");
+  const source = root?.querySelector<HTMLElement>("[data-svgr-source]");
+  const result = root?.querySelector<HTMLElement>("[data-svgr-result]");
+  let controller: EffectController | undefined;
+  let played = false;
+
+  const settle = () => {
+    if (!source || !result) return;
+    source.style.visibility = "hidden";
+    source.style.transform = "scale(1)";
+    result.style.visibility = "visible";
+    result.style.transform = "scale(1)";
+    result.setAttribute("aria-hidden", "false");
+    source.setAttribute("aria-hidden", "true");
+    played = true;
+  };
+
+  const activate = async (reduced: boolean) => {
+    if (!source || !result || played) return;
+    if (reduced) {
+      settle();
+      return;
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, 260));
+    controller = createEffect(source, "compress-swap", { secondary: result, duration: 780 });
+    await controller.play();
+    settle();
+  };
+
+  window.addEventListener("landing:proof", ((event: CustomEvent<{ index: number; reduced: boolean }>) => {
+    if (event.detail.index === 2) void activate(event.detail.reduced);
+  }) as EventListener);
+  window.addEventListener("pagehide", () => controller?.destroy(), { once: true });
+</script>
+
+<style>
+  .svgr2-proof { position: relative; display: grid; width: min(76vw, 64rem); min-height: min(50vh, 30rem); place-items: center; }
+  .fixture { display: grid; gap: 1.8rem; place-items: center; }
+  .fixture svg { width: clamp(8rem, 18vw, 15rem); overflow: visible; }
+  .fixture path { fill: none; stroke: var(--stage-ink); stroke-width: .7; vector-effect: non-scaling-stroke; }
+  .representation { position: relative; display: grid; min-width: 9rem; height: 2.5rem; place-items: center; }
+  code { position: absolute; color: var(--stage-ink); font: 500 clamp(1.2rem, 2vw, 1.7rem) var(--font-mono); transform-origin: left center; white-space: nowrap; }
+  [data-svgr-result] { visibility: hidden; }
+  .benchmark { position: absolute; right: 0; bottom: 0; display: grid; justify-items: end; }
+  .benchmark strong { color: var(--color-accent); font-size: clamp(2.2rem, 5vw, 4.5rem); font-weight: 500; letter-spacing: -.055em; line-height: .9; }
+  .benchmark span { margin-top: .5rem; color: color-mix(in srgb, var(--stage-ink) 52%, transparent); font: .68rem var(--font-mono); }
+
+  @media (max-width: 700px) {
+    .svgr2-proof { width: calc(100vw - 2rem); min-height: 48vh; }
+    .benchmark { right: .5rem; bottom: 1rem; }
+  }
+</style>

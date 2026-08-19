@@ -1,0 +1,84 @@
+<div class="tradimation-proof" data-proof="1" aria-hidden="true">
+  <div class="coordinate-field" data-tradimation-field>
+    <div class="specimen-origin"><div class="specimen" data-tradimation-specimen>same element</div></div>
+    <svg class="registration" data-tradimation-registration viewBox="0 0 32 32" role="presentation">
+      <path d="M16 0v10M16 22v10M0 16h10M22 16h10" />
+      <circle cx="16" cy="16" r="5" />
+    </svg>
+  </div>
+</div>
+
+<script>
+  import { createEffect } from "@tradimation/core";
+  import type { EffectController } from "@tradimation/core";
+
+  const root = document.querySelector<HTMLElement>(".tradimation-proof");
+  const field = root?.querySelector<HTMLElement>("[data-tradimation-field]");
+  const specimen = root?.querySelector<HTMLElement>("[data-tradimation-specimen]");
+  const registration = root?.querySelector<SVGElement>("[data-tradimation-registration]");
+  let controller: EffectController | undefined;
+  let played = false;
+  let running = false;
+  let distance = 0;
+
+  const measure = () => {
+    if (!field || !specimen || !registration) return;
+    const mobile = window.innerWidth <= 700;
+    const origin = field.clientWidth * (mobile ? .09 : .14);
+    const desired = mobile ? 110 : 220;
+    distance = Math.max(72, Math.min(desired, field.clientWidth - origin - specimen.offsetWidth - 28));
+    registration.style.left = `${origin + specimen.offsetWidth / 2 + distance}px`;
+    if (played) specimen.style.transform = `translateX(${distance}px)`;
+  };
+
+  const settle = () => {
+    if (!specimen || !registration) return;
+    specimen.style.transform = `translateX(${distance}px)`;
+    registration.classList.add("settled");
+    played = true;
+  };
+
+  const activate = async (reduced: boolean) => {
+    if (!field || !specimen || !registration || running) return;
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    measure();
+    if (played || reduced) {
+      settle();
+      return;
+    }
+
+    running = true;
+    try {
+      controller = createEffect(specimen, "smear", { overlayRoot: field, distance, duration: 670, cleanup: "commit" });
+      await controller.play();
+      settle();
+    } catch {
+      settle();
+    } finally {
+      running = false;
+    }
+  };
+
+  window.addEventListener("landing:proof", ((event: CustomEvent<{ index: number; reduced: boolean }>) => {
+    if (event.detail.index === 1) void activate(event.detail.reduced);
+  }) as EventListener);
+  window.addEventListener("resize", measure, { passive: true });
+  window.addEventListener("pagehide", () => controller?.destroy(), { once: true });
+</script>
+
+<style>
+  .tradimation-proof { width: min(76vw, 66rem); }
+  .coordinate-field { position: relative; aspect-ratio: 2.2 / 1; overflow: hidden; background-image: linear-gradient(color-mix(in srgb, var(--stage-ink) 7%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--stage-ink) 7%, transparent) 1px, transparent 1px); background-size: 24px 24px; }
+  .specimen-origin { position: absolute; top: 50%; left: 14%; transform: translateY(-50%); }
+  .specimen { display: grid; width: 190px; height: 74px; border: 2px solid var(--stage-ink); border-radius: 10px; color: var(--stage-bg); background: var(--color-accent); box-shadow: 6px 6px 0 var(--stage-ink); font-size: 1.08rem; font-weight: 600; letter-spacing: -.035em; line-height: 1; place-items: center; transform-origin: center; }
+  .registration { position: absolute; top: 50%; width: 32px; height: 32px; color: var(--color-accent); opacity: .45; transform: translate(-50%, -50%); }
+  .registration path, .registration circle { fill: none; stroke: currentColor; stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .registration.settled { opacity: .85; }
+
+  @media (max-width: 700px) {
+    .tradimation-proof { width: calc(100vw - 2rem); }
+    .coordinate-field { aspect-ratio: 1.25 / 1; }
+    .specimen-origin { left: 9%; }
+    .specimen { width: 150px; height: 60px; border-radius: 8px; box-shadow: 5px 5px 0 var(--stage-ink); font-size: .92rem; }
+  }
+</style>
