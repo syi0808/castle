@@ -2,6 +2,8 @@
 
 This document explores the next landing-motion revision. It does not authorize more motion by default. Its purpose is to decide which state changes deserve motion after the project set was reduced to `rougher-stuff`, `trandimation`, and `svgr2`.
 
+Prototype: `/lab/cinematic-recomposition`
+
 ## Current sequence
 
 ```text
