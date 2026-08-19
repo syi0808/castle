@@ -13,10 +13,12 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@rougher-stuff/rough-notation": "link:../rougher-stuff/packages/rough-notation",
+    "@tradimation/core": "link:../cel-motion",
     "@astrojs/rss": "^4.0.17",
     "@astrojs/sitemap": "^3.7.1",
     "astro": "^6.0.8",
-    "gsap": "^3.15.0"
+    "roughjs": "link:../rougher-stuff/packages/roughjs"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.2",

@@ -54,16 +54,15 @@ This document records principles to combine, not surfaces to imitate.
 - Repeated fade-up sections
 - Mobile interactions that block the first link activation
 
-## Prototype questions
+## Chosen prototype
 
-### A — Baseline Cut
+The type reel keeps one useful idea from direction B: project names share one fixed typographic stage. Everything else is removed unless it comes from the authored visual libraries.
 
-- Can a single baseline join identity and work without becoming decorative?
-- Does an asymmetric editorial frame feel sufficiently full without an illustration?
+- The hero is a static composition with no supporting illustration.
+- `rougher-stuff` uses the package's seeded rough notation underline.
+- Project changes use Tradimation's `compress-swap`.
+- `trandimation` uses the package's `text-punch` once after settling.
+- `svgr2` and `zctf` remain precise until they have authored visual assets.
+- A separate lab route exposes meaningful animation frames for visual review.
 
-### B — Type Reel
-
-- Can the name itself become the project stage?
-- Does a more graphic, centered composition still feel like Yein rather than an agency reel?
-
-The chosen direction must work as a static screenshot before motion is considered.
+The direction must work as a static screenshot before motion is considered.

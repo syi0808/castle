@@ -1,0 +1,97 @@
+---
+import LabLayout from "../../layouts/LabLayout.astro";
+
+const swapFrames = [0, .24, .42, .43, .64, .82, 1];
+const punchFrames = [0, .25, .5, .72, 1];
+---
+
+<LabLayout title="Motion Frame Review">
+  <main class="motion-qa">
+    <header>
+      <h1>Motion frame review</h1>
+      <p>Authored effects at their meaningful frames.</p>
+    </header>
+
+    <section>
+      <div class="frame-stage swap-stage">
+        <strong data-swap-source>rougher-stuff</strong>
+        <strong data-swap-destination>trandimation</strong>
+      </div>
+      <div class="controls" data-swap-controls>
+        {swapFrames.map((frame) => <button type="button" data-frame={frame}>{frame}</button>)}
+      </div>
+    </section>
+
+    <section>
+      <div class="frame-stage"><strong data-punch-target>trandimation</strong></div>
+      <div class="controls" data-punch-controls>
+        {punchFrames.map((frame) => <button type="button" data-frame={frame}>{frame}</button>)}
+      </div>
+    </section>
+  </main>
+</LabLayout>
+
+<script>
+  import { createEffect } from "@tradimation/core";
+
+  const source = document.querySelector<HTMLElement>("[data-swap-source]");
+  const destination = document.querySelector<HTMLElement>("[data-swap-destination]");
+  const punchTarget = document.querySelector<HTMLElement>("[data-punch-target]");
+
+  const selectButton = (container: Element | null, selected: HTMLButtonElement) => {
+    container?.querySelectorAll("button").forEach((button) => button.removeAttribute("aria-pressed"));
+    selected.setAttribute("aria-pressed", "true");
+  };
+
+  const setup = async () => {
+    await document.fonts.ready;
+    if (!source || !destination || !punchTarget) return;
+
+    const swap = createEffect(source, "compress-swap", { secondary: destination, duration: 780 });
+    const punch = createEffect(punchTarget, "text-punch", { duration: 650, cleanup: "restore" });
+
+    document.querySelectorAll<HTMLButtonElement>("[data-swap-controls] button").forEach((button) => {
+      button.addEventListener("click", () => {
+        swap.seek(Number(button.dataset.frame));
+        selectButton(button.parentElement, button);
+      });
+    });
+    document.querySelectorAll<HTMLButtonElement>("[data-punch-controls] button").forEach((button) => {
+      button.addEventListener("click", () => {
+        punch.seek(Number(button.dataset.frame));
+        selectButton(button.parentElement, button);
+      });
+    });
+
+    swap.seek(0);
+    punch.seek(0);
+    document.querySelector<HTMLButtonElement>("[data-swap-controls] button")?.setAttribute("aria-pressed", "true");
+    document.querySelector<HTMLButtonElement>("[data-punch-controls] button")?.setAttribute("aria-pressed", "true");
+    window.addEventListener("pagehide", () => {
+      swap.destroy();
+      punch.destroy();
+    }, { once: true });
+  };
+
+  void setup();
+</script>
+
+<style>
+  .motion-qa { width: min(calc(100% - 3rem), 1180px); margin: 0 auto; padding: 15vh 0 8rem; }
+  header { margin-bottom: 8rem; }
+  h1 { margin: 0; font-size: clamp(3.5rem, 8vw, 7rem); font-weight: 500; letter-spacing: -.065em; line-height: .9; }
+  header p { margin: 1.5rem 0 0; color: var(--color-text-sub); font-size: 1rem; }
+  section { margin-top: 6rem; }
+  .frame-stage { position: relative; display: grid; min-height: min(42vw, 28rem); overflow: hidden; border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); place-items: center; }
+  .frame-stage strong { position: absolute; font-size: clamp(3.2rem, 9vw, 9rem); font-weight: 500; letter-spacing: -.075em; line-height: .82; transform-origin: center; white-space: nowrap; }
+  [data-swap-destination] { visibility: hidden; }
+  .controls { display: flex; gap: .4rem; flex-wrap: wrap; padding-top: 1rem; }
+  button { min-width: 3.4rem; padding: .55rem .7rem; border: 1px solid var(--color-border); border-radius: 0; color: var(--color-text-sub); background: transparent; font: .75rem var(--font-mono); cursor: pointer; }
+  button:hover, button:focus-visible, button[aria-pressed="true"] { border-color: var(--color-accent); color: var(--color-text); }
+
+  @media (max-width: 700px) {
+    .motion-qa { width: calc(100% - 2rem); }
+    .frame-stage { min-height: 17rem; }
+    .frame-stage strong { font-size: clamp(3rem, 15vw, 5rem); }
+  }
+</style>

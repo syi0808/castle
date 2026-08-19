@@ -1,112 +1,189 @@
 ---
 import LabLayout from "../../layouts/LabLayout.astro";
+
 const projectNames = ["rougher-stuff", "trandimation", "svgr2", "zctf"];
 ---
+
 <LabLayout title="Moving Draft B — Type Reel">
   <main class="prototype-b">
-    <section class="hero-b" data-hero-b>
-      <div class="hero-frame">
-        <h1><span class="first">Yein</span><span class="last">Sung</span></h1>
-        <p>I make tools, interfaces,<br />and things I wish existed.</p>
-        <div class="aperture" aria-hidden="true"><i></i><b></b></div>
-      </div>
+    <section class="hero-b">
+      <h1>Yein Sung</h1>
+      <p>I make tools, interfaces,<br />and things I wish existed.</p>
     </section>
 
     <section class="reel" data-reel>
       <div class="reel-frame">
-        <span class="frame-name top">Yein</span><span class="frame-name bottom">Sung</span>
-        <ol class="project-index">{projectNames.map((name, index) => <li data-index={index}><span>{String(index + 1).padStart(2, "0")}</span>{name}</li>)}</ol>
-        <div class="slides" aria-hidden="true">
-          <div class="slide rough-slide active" data-slide="0"><strong>rougher-stuff</strong><svg viewBox="0 0 900 80" preserveAspectRatio="none"><path d="M5 46c67-15 110 15 179 0s119 16 190-1 128 16 202 0 111 12 173-1 98 11 147-1" /></svg></div>
-          <div class="slide motion-slide" data-slide="1"><i>trandimation</i><i>trandimation</i><strong>trandimation</strong></div>
-          <div class="slide svg-slide" data-slide="2"><strong>svgr2</strong><div class="nodes"><i></i><i></i><i></i><i></i><i></i></div></div>
-          <div class="slide rail-slide" data-slide="3"><strong>zctf</strong><div class="rails"><i></i><i></i></div></div>
+        <div class="title-stage" aria-live="polite">
+          {projectNames.map((name, index) => (
+            <h2 class="project-title" data-project-title={index} aria-hidden={index !== 0}>{name}</h2>
+          ))}
         </div>
       </div>
-      <div class="reel-triggers">{projectNames.map((name, index) => <div data-trigger={index} aria-label={name}></div>)}</div>
+
+      <div class="chapters">
+        {projectNames.map((name, index) => (
+          <div class="chapter" data-chapter={index}><span class="sr-only">{name}</span></div>
+        ))}
+      </div>
     </section>
   </main>
 </LabLayout>
 
 <script>
-  import gsap from "gsap";
-  import ScrollTrigger from "gsap/ScrollTrigger";
-  gsap.registerPlugin(ScrollTrigger);
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  import { annotate } from "@rougher-stuff/rough-notation";
+  import { createEffect } from "@tradimation/core";
+  import type { EffectController } from "@tradimation/core";
 
-  if (!reduced && window.innerWidth > 760) {
-    gsap.timeline({ scrollTrigger: { trigger: "[data-hero-b]", start: "top top", end: "bottom bottom", scrub: .6 } })
-      .to(".hero-b .first", { x: "-24vw", y: "-27vh", scale: .48, opacity: .28, duration: .7 }, 0)
-      .to(".hero-b .last", { x: "24vw", y: "27vh", scale: .48, opacity: .28, duration: .7 }, 0)
-      .to(".hero-b p", { opacity: 0, y: -20, duration: .25 }, .18)
-      .to(".aperture i", { scaleX: 1, duration: .55 }, .25)
-      .to(".aperture b", { scaleY: 1, duration: .55 }, .35);
-  }
+  const titles = [...document.querySelectorAll<HTMLElement>("[data-project-title]")];
+  const chapters = [...document.querySelectorAll<HTMLElement>("[data-chapter]")];
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const accent = getComputedStyle(document.documentElement).getPropertyValue("--color-accent").trim();
 
-  const slides = [...document.querySelectorAll<HTMLElement>("[data-slide]")];
-  const indexItems = [...document.querySelectorAll<HTMLElement>("[data-index]")];
-  let current = 0;
-  const activate = (next: number) => {
-    if (next === current && slides[next]?.classList.contains("seen")) return;
-    current = next;
-    slides.forEach((slide, index) => {
-      slide.classList.toggle("active", index === next);
-      gsap.to(slide, { autoAlpha: index === next ? 1 : 0, scale: index === next ? 1 : .975, duration: reduced ? 0 : .28, overwrite: true });
+  let currentIndex = 0;
+  let requestedIndex = 0;
+  let transitioning = false;
+  let lastSwap: EffectController | undefined;
+  let punch: EffectController | undefined;
+  let roughUnderline: ReturnType<typeof annotate> | undefined;
+  let reelEntered = false;
+
+  const applyCurrentState = (index: number) => {
+    titles.forEach((title, titleIndex) => {
+      title.style.visibility = titleIndex === index ? "visible" : "hidden";
+      title.style.transform = "scale(1)";
+      title.setAttribute("aria-hidden", String(titleIndex !== index));
     });
-    indexItems.forEach((item, index) => item.classList.toggle("active", index === next));
-    const target = slides[next];
-    if (!target || reduced || target.classList.contains("seen")) return;
-    target.classList.add("seen");
-    gsap.fromTo(target.querySelector("strong"), { yPercent: 24 }, { yPercent: 0, duration: .48, ease: "power3.out" });
-    if (next === 0) gsap.fromTo(target.querySelector("path"), { strokeDasharray: 1000, strokeDashoffset: 1000 }, { strokeDashoffset: 0, duration: .42, delay: .2 });
-    if (next === 1) gsap.fromTo(target.querySelectorAll("i"), { x: -70, opacity: .45 }, { x: 70, opacity: 0, stagger: .05, duration: .52, ease: "power2.out" });
-    if (next === 2) gsap.fromTo(target.querySelectorAll(".nodes i"), { scale: 0 }, { scale: 1, stagger: .06, duration: .3, ease: "back.out(1.8)" });
-    if (next === 3) gsap.fromTo(target.querySelectorAll(".rails i"), { scaleX: 0 }, { scaleX: 1, stagger: .16, duration: .55, transformOrigin: "left", ease: "power2.out" });
   };
-  document.querySelectorAll<HTMLElement>("[data-trigger]").forEach((trigger) => {
-    const index = Number(trigger.dataset.trigger);
-    ScrollTrigger.create({ trigger, start: "top center", end: "bottom center", onEnter: () => activate(index), onEnterBack: () => activate(index) });
-  });
-  activate(0);
+
+  const showUnderline = () => {
+    if (!roughUnderline) return;
+    roughUnderline.show({ duration: reducedMotion ? 0 : 650 });
+  };
+
+  const hideUnderline = async () => {
+    if (!roughUnderline?.isShowing()) return;
+    const controller = roughUnderline.hide({
+      effect: reducedMotion ? "instant" : "reverse-draw",
+      duration: reducedMotion ? 0 : 280,
+    });
+    await controller.finished;
+  };
+
+  const playPunch = () => {
+    if (reducedMotion || !titles[1]) return;
+    punch?.destroy();
+    punch = createEffect(titles[1], "text-punch", {
+      duration: 650,
+      cleanup: "restore",
+      reducedMotion,
+    });
+    void punch.play();
+  };
+
+  const transitionTo = async (nextIndex: number) => {
+    requestedIndex = nextIndex;
+    if (transitioning) return;
+
+    transitioning = true;
+    while (currentIndex !== requestedIndex) {
+      const destinationIndex = requestedIndex;
+      const source = titles[currentIndex];
+      const destination = titles[destinationIndex];
+      if (!source || !destination) break;
+
+      punch?.destroy();
+      punch = undefined;
+      if (currentIndex === 0) await hideUnderline();
+
+      lastSwap?.destroy();
+      lastSwap = undefined;
+      applyCurrentState(currentIndex);
+
+      if (reducedMotion) {
+        applyCurrentState(destinationIndex);
+      } else {
+        lastSwap = createEffect(source, "compress-swap", {
+          secondary: destination,
+          duration: 780,
+        });
+        await lastSwap.play();
+      }
+
+      currentIndex = destinationIndex;
+      applyCurrentState(currentIndex);
+      if (currentIndex === 0) showUnderline();
+      if (currentIndex === 1) playPunch();
+    }
+    transitioning = false;
+  };
+
+  const setup = async () => {
+    await document.fonts.ready;
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
+    if (titles[0]) {
+      roughUnderline = annotate(titles[0], {
+        type: "underline",
+        color: accent,
+        strokeWidth: 2,
+        iterations: 1,
+        roughness: 1.25,
+        seed: 43,
+        padding: [0, 0, 6, 0],
+        animationDuration: 650,
+      });
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const index = Number((entry.target as HTMLElement).dataset.chapter);
+        if (!Number.isFinite(index)) continue;
+        if (!reelEntered) {
+          reelEntered = true;
+          if (index === 0) showUnderline();
+        }
+        void transitionTo(index);
+      }
+    }, { rootMargin: "-48% 0px -48% 0px" });
+
+    chapters.forEach((chapter) => observer.observe(chapter));
+    window.addEventListener("pagehide", () => {
+      observer.disconnect();
+      roughUnderline?.remove();
+      punch?.destroy();
+      lastSwap?.destroy();
+    }, { once: true });
+  };
+
+  applyCurrentState(0);
+  void setup();
 </script>
 
 <style>
   .prototype-b { overflow: clip; }
-  .hero-b { min-height: 165svh; }
-  .hero-frame { position: sticky; top: 0; display: grid; height: 100svh; place-items: center; }
-  h1 { display: flex; gap: .22em; margin: 0; font-size: clamp(7rem, 18vw, 18rem); font-weight: 600; letter-spacing: -.1em; line-height: .8; white-space: nowrap; }
-  h1 span { display: inline-block; }
-  .hero-frame p { position: absolute; bottom: 8vh; left: 50%; margin: 0; font-size: clamp(1.2rem, 2vw, 2rem); font-weight: 500; letter-spacing: -.035em; line-height: 1.25; transform: translateX(-50%); }
-  .aperture { position: absolute; width: min(42vw, 36rem); height: 42vh; pointer-events: none; }
-  .aperture i, .aperture b { position: absolute; display: block; background: var(--color-accent); }
-  .aperture i { top: 50%; right: 0; left: 0; height: 1px; transform: scaleX(0); }
-  .aperture b { top: 0; bottom: 0; left: 50%; width: 1px; transform: scaleY(0); }
-  .reel { position: relative; }
-  .reel-frame { position: sticky; top: 0; overflow: hidden; height: 100svh; border-top: 1px solid var(--color-border); background: var(--color-bg); }
-  .frame-name { position: absolute; color: var(--color-border); font-size: clamp(5rem, 11vw, 11rem); font-weight: 600; letter-spacing: -.09em; line-height: .75; }
-  .frame-name.top { top: 3vh; left: 4vw; }
-  .frame-name.bottom { right: 4vw; bottom: 3vh; }
-  .project-index { position: absolute; z-index: 2; top: 50%; left: 3vw; margin: 0; padding: 0; list-style: none; transform: translateY(-50%); }
-  .project-index li { margin: .6rem 0; color: var(--color-text-sub); font-size: .72rem; transition: color 180ms, transform 180ms; }
-  .project-index li span { display: inline-block; width: 2.2rem; font-family: var(--font-mono); font-size: .62rem; }
-  .project-index li.active { color: var(--color-text); transform: translateX(.4rem); }
-  .slides { position: absolute; inset: 0; display: grid; place-items: center; }
-  .slide { position: absolute; display: grid; width: min(78vw, 74rem); min-height: 18rem; opacity: 0; place-items: center; }
-  .slide.active { opacity: 1; }
-  .slide strong { position: relative; z-index: 2; font-size: clamp(4rem, 10vw, 10rem); font-weight: 500; letter-spacing: -.08em; line-height: .9; }
-  .rough-slide svg { position: absolute; top: 59%; width: 82%; height: 4rem; }
-  .rough-slide path { fill: none; stroke: var(--color-accent); stroke-width: 2; vector-effect: non-scaling-stroke; }
-  .motion-slide i { position: absolute; color: var(--color-accent); font-size: clamp(4rem, 10vw, 10rem); font-style: normal; font-weight: 500; letter-spacing: -.08em; opacity: 0; }
-  .nodes { position: absolute; width: min(62vw, 48rem); height: 20rem; }
-  .nodes::before, .nodes::after { position: absolute; top: 50%; right: 10%; left: 10%; border-top: 1px dashed var(--color-text-sub); content: ""; transform: rotate(12deg); }
-  .nodes::after { transform: rotate(-15deg); }
-  .nodes i { position: absolute; width: 1.5rem; height: 1.5rem; border: 1px solid var(--color-accent); border-radius: 50%; background: var(--color-bg); }
-  .nodes i:nth-child(1) { top: 15%; left: 12%; } .nodes i:nth-child(2) { top: 63%; left: 30%; } .nodes i:nth-child(3) { top: 28%; left: 52%; border-radius: 0; } .nodes i:nth-child(4) { top: 70%; left: 72%; } .nodes i:nth-child(5) { top: 12%; right: 8%; border-radius: 0; }
-  .rails { position: absolute; width: min(68vw, 52rem); height: 13rem; }
-  .rails i { position: absolute; right: 0; left: 0; height: 2px; background: var(--color-text-sub); }
-  .rails i:first-child { top: 35%; background: var(--color-accent); }
-  .rails i:last-child { top: 68%; background: repeating-linear-gradient(90deg, var(--color-text-sub) 0 6px, transparent 6px 13px); }
-  .reel-triggers { position: relative; z-index: -1; margin-top: -100svh; }
-  .reel-triggers > div { height: 78svh; }
-  @media (max-width: 760px) { .hero-b { min-height: 100svh; } .hero-frame { position: relative; } h1 { flex-direction: column; gap: 0; font-size: clamp(6rem, 30vw, 10rem); line-height: .72; } .hero-frame p { bottom: 10vh; width: calc(100% - 2rem); font-size: 1.25rem; } .aperture { display: none; } .frame-name { font-size: 5rem; } .project-index { top: auto; right: 1rem; bottom: 2rem; left: 1rem; display: flex; justify-content: space-between; transform: none; } .project-index li { font-size: 0; } .project-index li span { width: auto; font-size: .65rem; } .slide { width: calc(100% - 2rem); } .slide strong { font-size: clamp(3.2rem, 14vw, 6rem); } }
+  .hero-b { position: relative; min-height: 100svh; padding: clamp(1.25rem, 3vw, 3rem); }
+  .hero-b h1 { position: absolute; top: 39%; left: clamp(1.25rem, 3vw, 3rem); margin: 0; font-size: clamp(4.2rem, 17vw, 16rem); font-weight: 500; letter-spacing: -.085em; line-height: .78; white-space: nowrap; transform: translateY(-50%); }
+  .hero-b p { position: absolute; right: clamp(1.25rem, 5vw, 6rem); bottom: clamp(3rem, 10vh, 7rem); margin: 0; font-size: clamp(1.35rem, 2.35vw, 2.4rem); font-weight: 500; letter-spacing: -.04em; line-height: 1.15; }
+  .reel { position: relative; display: grid; background: var(--color-text); color: var(--color-bg); }
+  .reel-frame, .chapters { grid-area: 1 / 1; }
+  .reel-frame { position: sticky; z-index: 0; top: 0; display: grid; height: 100svh; overflow: hidden; place-items: center; }
+  .title-stage { position: relative; display: grid; width: calc(100% - clamp(2rem, 8vw, 9rem)); height: min(34vw, 26rem); place-items: center; }
+  .project-title { position: absolute; margin: 0; color: var(--color-bg); font-size: clamp(4rem, 11vw, 11.5rem); font-weight: 500; letter-spacing: -.075em; line-height: .82; text-align: center; transform-origin: center; white-space: nowrap; }
+  .project-title:not(:first-child) { visibility: hidden; }
+  .chapters { position: relative; z-index: 1; pointer-events: none; }
+  .chapter { height: 92svh; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; margin: -1px; padding: 0; border: 0; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  @media (max-width: 700px) {
+    .hero-b h1 { top: 34%; font-size: clamp(4rem, 19vw, 6rem); }
+    .hero-b p { right: 1.25rem; bottom: 12vh; left: 1.25rem; font-size: clamp(1.4rem, 7vw, 2rem); }
+    .title-stage { width: calc(100% - 2rem); height: 38vw; }
+    .project-title { font-size: clamp(3.25rem, 15vw, 5.5rem); }
+    .chapter { height: 82svh; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-title { transition: none; }
+  }
 </style>
