@@ -5,15 +5,13 @@ const currentPath = Astro.url.pathname;
 const navItems = [{ label: "Work", href: `${base}work` }, { label: "Writing", href: `${base}archive` }];
 ---
 <header class="site-header"><nav class="site-shell nav" aria-label="Main navigation">
-  <a href={base} class="brand rough-link" aria-label="Yein Sung, home">Yein Sung</a>
   <div class="nav-links">
     {navItems.map((item) => <a href={item.href} class="rough-link" aria-current={currentPath.startsWith(item.href) ? "page" : undefined}>{item.label}</a>)}
     <a href="https://github.com/syi0808" class="rough-link gh" target="_blank" rel="noopener noreferrer" aria-label="GitHub, opens in a new window">GitHub ↗</a><ThemeToggle />
   </div>
 </nav></header>
 <style>
-  .site-header { position: relative; z-index: 40; } .nav { display: flex; align-items: center; justify-content: space-between; height: 5rem; }
-  .brand { display: inline-block; font-size: 1rem; font-weight: 600; letter-spacing: -.025em; text-decoration: none; }
+  .site-header { position: relative; z-index: 40; } .nav { display: flex; align-items: center; justify-content: flex-end; height: 5rem; }
   .nav-links { display: flex; align-items: center; gap: clamp(1.1rem, 2.5vw, 2.4rem); font-size: .82rem; }
   @media (max-width: 520px) { .nav { height: 4.25rem; } .gh { display: none; } .nav-links { gap: 1.15rem; } }
 </style>
