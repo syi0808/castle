@@ -196,12 +196,12 @@ const { name, active = false } = Astro.props;
   .project-visual.active { opacity: 1; transform: translateY(0); }
   .flow-frame { width: min(88%, 38rem); border: 1px solid var(--color-border); background: var(--color-bg); }
   header { display: grid; grid-template-columns: repeat(3, 1fr); min-height: 2.4rem; border-bottom: 1px solid var(--color-border); }
-  header span { display: flex; align-items: center; padding: 0 .75rem; color: var(--color-text-sub); font: .48rem var(--font-mono); text-transform: uppercase; }
+  header span { display: flex; align-items: center; padding: 0 .75rem; color: var(--color-text-sub); font: .48rem var(--font-mono); }
   header span + span { border-left: 1px solid var(--color-border); }
   .flow-grid, .motion-flow { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); min-height: clamp(16rem, 29vw, 21rem); }
   .flow-cell, .state-column, .motion-column { position: relative; display: grid; min-width: 0; padding: 1rem; place-items: center; }
   .flow-cell + .flow-cell, .state-column + .motion-column, .motion-column + .state-column { border-left: 1px solid var(--color-border); }
-  .cell-label { position: absolute; top: .75rem; left: .75rem; color: var(--color-text-sub); font: .43rem var(--font-mono); text-transform: uppercase; }
+  .cell-label { position: absolute; top: .75rem; left: .75rem; color: var(--color-text-sub); font: .43rem var(--font-mono); }
   .rough-input p, .rough-output p { margin: 0; font-size: clamp(1rem, 1.8vw, 1.35rem); font-weight: 500; letter-spacing: -.035em; line-height: 1.25; text-align: center; }
   .rough-input code { position: absolute; bottom: 1rem; color: var(--color-text-sub); font: .42rem var(--font-mono); }
   .rough-output p span { white-space: nowrap; }
@@ -227,7 +227,7 @@ const { name, active = false } = Astro.props;
   .component-output svg { position: absolute; right: .7rem; bottom: .7rem; width: 2rem; opacity: .45; }
   [data-svgr-result] { visibility: hidden; }
   .rendered .component-output svg { opacity: 1; transition: opacity 240ms ease; }
-  footer { display: flex; justify-content: space-between; min-height: 2.4rem; padding: 0 .75rem; border-top: 1px solid var(--color-border); color: var(--color-text-sub); font: .45rem var(--font-mono); text-transform: uppercase; align-items: center; }
+  footer { display: flex; justify-content: space-between; min-height: 2.4rem; padding: 0 .75rem; border-top: 1px solid var(--color-border); color: var(--color-text-sub); font: .45rem var(--font-mono); align-items: center; }
   footer span:last-child { color: var(--color-accent); }
   @keyframes trail { 0% { opacity: .2; transform: translate(-50%, -50%) scale(.5); } 55% { opacity: 1; transform: translate(-50%, -50%) scale(1.8); } 100% { opacity: .45; transform: translate(-50%, -50%) scale(1); } }
 

@@ -7,7 +7,7 @@ const featured = projects.filter((project) => project.featured && project.visual
 
 <section class="selected-work site-shell" data-selected-work>
   <header class="section-head">
-    <div><span>01</span><h2>Selected work</h2></div>
+    <h2>Selected work</h2>
     <a href={`${import.meta.env.BASE_URL}work`}>All work ↗</a>
   </header>
   <div class="work-catalog">
@@ -26,7 +26,6 @@ const featured = projects.filter((project) => project.featured && project.visual
     </ol>
     <aside class="work-stage" aria-live="polite">
       {featured.map((project, index) => <ProjectVisual name={project.visual!} active={index === 0} />)}
-      <footer><span>Input → Transform → Output</span><span data-stage-name>{featured[0]?.name}</span></footer>
     </aside>
   </div>
 </section>
@@ -39,7 +38,6 @@ const featured = projects.filter((project) => project.featured && project.visual
   const rows = [...(section?.querySelectorAll<HTMLAnchorElement>("[data-project-row]") ?? [])];
   const visuals = [...(section?.querySelectorAll<HTMLElement>(".work-stage [data-visual]") ?? [])];
   const mobileVisuals = [...(section?.querySelectorAll<HTMLElement>(".mobile-visual [data-visual]") ?? [])];
-  const stageName = section?.querySelector<HTMLElement>("[data-stage-name]");
   const annotations = new Map<HTMLElement, RoughAnnotation>();
   let scrollName = rows[0]?.dataset.projectRow;
   let pointerName: string | undefined;
@@ -55,7 +53,6 @@ const featured = projects.filter((project) => project.featured && project.visual
       if (active) annotation?.show({ duration: 260 });
       else annotation?.hide();
     });
-    if (stageName) stageName.textContent = name ?? "Visual index";
   };
 
   rows.forEach((row) => {
@@ -102,9 +99,7 @@ const featured = projects.filter((project) => project.featured && project.visual
 <style>
   .selected-work { padding-top: clamp(3.5rem, 7vw, 6rem); }
   .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 2rem; }
-  .section-head > div { display: flex; gap: 1rem; align-items: baseline; }
-  .section-head span, .section-head a { color: var(--color-text-sub); font: .62rem var(--font-mono); text-transform: uppercase; }
-  .section-head > div > span { color: var(--color-accent); }
+  .section-head a { color: var(--color-text-sub); font: .62rem var(--font-mono); }
   .section-head h2 { margin: 0; font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 500; letter-spacing: -.045em; line-height: 1; }
   .section-head a { text-decoration: none; }
   .section-head a:hover, .section-head a:focus-visible { color: var(--color-text); }
@@ -124,8 +119,6 @@ const featured = projects.filter((project) => project.featured && project.visual
   .work-row a:hover .external, .work-row a:focus-visible .external { opacity: 1; transform: translate(0, 0); }
   .mobile-visual { display: none; }
   .work-stage { position: sticky; top: 5.5rem; height: min(70svh, 34rem); overflow: hidden; }
-  .work-stage > footer { position: absolute; right: 1.25rem; bottom: .8rem; left: 1.25rem; display: flex; justify-content: space-between; color: var(--color-text-sub); font: .5rem var(--font-mono); text-transform: uppercase; }
-  .work-stage > footer span:last-child { color: var(--color-accent); }
 
   @media (max-width: 850px) {
     .selected-work { padding-top: 4.5rem; }
