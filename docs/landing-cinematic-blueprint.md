@@ -41,7 +41,7 @@ Roughness is evidence of a state change. It is never a permanent surface treatme
 
 - The viewport becomes a shared project stage.
 - Each project owns one title and one proof asset.
-- Project titles use the same slot and can therefore use `compress-swap` between chapters.
+- Project titles use the same visual slot, but later project boundaries use a direct cut because no shared object changes meaning between unrelated projects.
 - Proof assets do not crossfade through each other. The old proof clears, the title switches, and the next proof activates.
 - Every proof must still identify its project when the title is hidden.
 
@@ -105,7 +105,7 @@ A single viewport-sized composition used first by identity and then by three pro
 
 ### 1. What is it?
 
-The actual Tradimation `compress-swap` effect applied only to labels sharing one physical title slot.
+The actual Tradimation `compress-swap` effect applied only when the identity slot becomes the first work title, and when that boundary is traversed in reverse.
 
 ### 2. Final picture
 
@@ -113,8 +113,8 @@ A source title compresses horizontally to an almost-flat exposure; a destination
 
 ### 3. Elements
 
-- One visible source heading.
-- One hidden destination heading.
+- The `Yein Sung` identity heading.
+- The `rougher-stuff` destination heading.
 - One shared title slot with identical transform origin.
 
 ### 4. Exact forms
@@ -288,7 +288,8 @@ One large `Writing` heading followed by five title rows. No visual preview runs 
 
 - Native scrolling is never intercepted.
 - Scroll chapters select states; they do not scrub the internal effect frames.
-- Only one title transition runs at a time.
+- Only the identity-to-first-work title transition uses a motion controller.
+- Later project-title changes are synchronous cuts.
 - A newer requested chapter replaces queued intermediate chapters.
 - Proof effects play once per page visit and settle permanently.
 - Re-entering a chapter restores its completed state rather than replaying it.

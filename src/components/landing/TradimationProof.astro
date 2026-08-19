@@ -1,4 +1,4 @@
-<div class="tradimation-proof" data-proof="1" aria-hidden="true">
+<div class="tradimation-proof" data-proof="trandimation" aria-hidden="true">
   <div class="coordinate-field" data-tradimation-field>
     <div class="specimen-origin"><div class="specimen" data-tradimation-specimen>same element</div></div>
     <svg class="registration" data-tradimation-registration viewBox="0 0 32 32" role="presentation">
@@ -59,8 +59,8 @@
     }
   };
 
-  window.addEventListener("landing:proof", ((event: CustomEvent<{ index: number; reduced: boolean }>) => {
-    if (event.detail.index === 1) void activate(event.detail.reduced);
+  window.addEventListener("landing:proof", ((event: CustomEvent<{ name: string; reduced: boolean }>) => {
+    if (event.detail.name === "trandimation") void activate(event.detail.reduced);
   }) as EventListener);
   window.addEventListener("resize", measure, { passive: true });
   window.addEventListener("pagehide", () => controller?.destroy(), { once: true });

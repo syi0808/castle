@@ -16,9 +16,9 @@ const titleSizes: Record<string, string> = {
 <section class="cinematic-sequence" data-cinematic-sequence data-chapter-total={chapterTotal}>
   <div class="cinematic-stage" data-cinematic-stage>
     <div class="title-stack" aria-live="polite">
-      <h1 data-cinematic-title="0">Yein Sung</h1>
-      {featured.map((project, index) => (
-        <h2 data-cinematic-title={index + 1} aria-hidden="true" inert style={`--title-size:${titleSizes[project.name]}`}>
+      <h1 data-cinematic-title="identity">Yein Sung</h1>
+      {featured.map((project) => (
+        <h2 data-cinematic-title={project.visual} aria-hidden="true" inert style={`--title-size:${titleSizes[project.name]}`}>
           <a href={project.website ?? project.github} target="_blank" rel="noopener noreferrer">{project.name}</a>
         </h2>
       ))}
@@ -35,8 +35,8 @@ const titleSizes: Record<string, string> = {
   </div>
 
   <div class="chapters" aria-hidden="true">
-    <div class="chapter identity-chapter" data-cinematic-chapter="0"></div>
-    {featured.map((project, index) => <div class="chapter" data-cinematic-chapter={index + 1}><span>{project.name}</span></div>)}
+    <div class="chapter identity-chapter" data-cinematic-chapter="identity"></div>
+    {featured.map((project) => <div class="chapter" data-cinematic-chapter={project.visual}><span>{project.name}</span></div>)}
   </div>
 
   <noscript>
@@ -60,21 +60,26 @@ const titleSizes: Record<string, string> = {
   const sequence = document.querySelector<HTMLElement>("[data-cinematic-sequence]");
   const stage = sequence?.querySelector<HTMLElement>("[data-cinematic-stage]");
   const titles = [...(sequence?.querySelectorAll<HTMLElement>("[data-cinematic-title]") ?? [])];
+  const titleMap = new Map(titles.map((title) => [title.dataset.cinematicTitle ?? "", title]));
   const proofs = [...(sequence?.querySelectorAll<HTMLElement>("[data-proof]") ?? [])];
+  const proofMap = new Map(proofs.map((proof) => [proof.dataset.proof ?? "", proof]));
   const chapters = [...(sequence?.querySelectorAll<HTMLElement>("[data-cinematic-chapter]") ?? [])];
   const intro = sequence?.querySelector<HTMLElement>("[data-cinematic-intro]");
   const number = sequence?.querySelector<HTMLElement>("[data-cinematic-number]");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const chapterTotal = sequence?.dataset.chapterTotal ?? "00";
+  const identityScene = "identity";
+  const projectScenes = titles.slice(1).map((title) => title.dataset.cinematicTitle).filter((scene): scene is string => Boolean(scene));
+  const firstProjectScene = projectScenes[0];
 
-  let currentIndex = 0;
-  let requestedIndex = 0;
+  let currentScene = identityScene;
+  let requestedScene = identityScene;
   let transitioning = false;
   let titleController: EffectController | undefined;
 
-  const applyTitleState = (index: number) => {
-    titles.forEach((title, titleIndex) => {
-      const active = titleIndex === index;
+  const applyTitleState = (scene: string) => {
+    titles.forEach((title) => {
+      const active = title.dataset.cinematicTitle === scene;
       title.style.visibility = active ? "visible" : "hidden";
       title.style.transform = "scale(1)";
       title.setAttribute("aria-hidden", String(!active));
@@ -90,20 +95,21 @@ const titleSizes: Record<string, string> = {
     });
   };
 
-  const showProof = async (projectIndex: number) => {
-    const proof = proofs[projectIndex];
+  const showProof = async (scene: string) => {
+    const proof = proofMap.get(scene);
     if (!proof) return;
     proof.style.visibility = "visible";
     proof.style.opacity = "1";
     proof.setAttribute("aria-hidden", "false");
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-    window.dispatchEvent(new CustomEvent("landing:proof", { detail: { index: projectIndex, reduced: reducedMotion } }));
+    window.dispatchEvent(new CustomEvent("landing:proof", { detail: { name: scene, reduced: reducedMotion } }));
   };
 
-  const enterWorkMode = (index: number) => {
+  const enterWorkMode = (scene: string) => {
     stage?.classList.add("work-mode");
     intro?.classList.add("hidden");
     if (number) {
+      const index = projectScenes.indexOf(scene) + 1;
       number.textContent = `${String(index).padStart(2, "0")} / ${chapterTotal}`;
       number.setAttribute("aria-hidden", "false");
     }
@@ -115,8 +121,8 @@ const titleSizes: Record<string, string> = {
     number?.setAttribute("aria-hidden", "true");
   };
 
-  const transitionTo = async (nextIndex: number) => {
-    requestedIndex = nextIndex;
+  const transitionTo = async (nextScene: string) => {
+    requestedScene = nextScene;
     if (transitioning) {
       titleController?.destroy();
       return;
@@ -124,38 +130,41 @@ const titleSizes: Record<string, string> = {
     if (!stage) return;
     transitioning = true;
 
-    while (currentIndex !== requestedIndex) {
-      const destinationIndex = requestedIndex;
-      const source = titles[currentIndex];
-      const destination = titles[destinationIndex];
+    while (currentScene !== requestedScene) {
+      const destinationScene = requestedScene;
+      const source = titleMap.get(currentScene);
+      const destination = titleMap.get(destinationScene);
       if (!source || !destination) break;
 
       clearProofs();
-      if (destinationIndex > 0) enterWorkMode(destinationIndex);
+      if (destinationScene !== identityScene) enterWorkMode(destinationScene);
 
       titleController?.destroy();
       titleController = undefined;
-      applyTitleState(currentIndex);
+      applyTitleState(currentScene);
 
-      if (reducedMotion) {
-        applyTitleState(destinationIndex);
+      const identityBoundary = (currentScene === identityScene && destinationScene === firstProjectScene)
+        || (currentScene === firstProjectScene && destinationScene === identityScene);
+
+      if (reducedMotion || !identityBoundary) {
+        applyTitleState(destinationScene);
       } else {
         try {
           titleController = createEffect(source, "compress-swap", { secondary: destination, duration: 780 });
           await titleController.play();
         } catch {
-          applyTitleState(destinationIndex);
+          applyTitleState(destinationScene);
         }
       }
 
-      currentIndex = destinationIndex;
-      applyTitleState(currentIndex);
+      currentScene = destinationScene;
+      applyTitleState(currentScene);
 
-      if (currentIndex === 0) {
+      if (currentScene === identityScene) {
         enterIdentityMode();
       } else {
-        enterWorkMode(currentIndex);
-        if (currentIndex === requestedIndex) await showProof(currentIndex - 1);
+        enterWorkMode(currentScene);
+        if (currentScene === requestedScene) await showProof(currentScene);
       }
     }
 
@@ -166,14 +175,14 @@ const titleSizes: Record<string, string> = {
     if (!sequence || !stage) return;
     await document.fonts.ready;
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-    applyTitleState(0);
+    applyTitleState(identityScene);
     clearProofs();
 
     const observer = new IntersectionObserver((entries) => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
-        const index = Number((entry.target as HTMLElement).dataset.cinematicChapter);
-        if (Number.isFinite(index)) void transitionTo(index);
+        const scene = (entry.target as HTMLElement).dataset.cinematicChapter;
+        if (scene && titleMap.has(scene)) void transitionTo(scene);
       }
     }, { rootMargin: "-48% 0px -48% 0px" });
 

@@ -2,9 +2,11 @@
 
 This document explores the next landing-motion revision. It does not authorize more motion by default. Its purpose is to decide which state changes deserve motion after the project set was reduced to `rougher-stuff`, `trandimation`, and `svgr2`.
 
-Prototype: `/lab/cinematic-recomposition`
+## Status
 
-## Current sequence
+Option B is now the landing implementation. The shared title slot remains a layout anchor, but only the identity-to-first-work boundary uses title deformation.
+
+## Previous sequence
 
 ```text
 Yein Sung
@@ -14,7 +16,7 @@ Yein Sung
 → Writing
 ```
 
-The current shared title slot gives the sequence continuity, but every title change uses the same `compress-swap`. This makes project boundaries mechanically consistent at the cost of flattening their different meanings. The project proofs carry specific evidence while the repeated title motion carries no new information after the identity-to-work change.
+The previous shared title slot gave the sequence continuity, but every title change used the same `compress-swap`. This made project boundaries mechanically consistent at the cost of flattening their different meanings. The project proofs carried specific evidence while the repeated title motion carried no new information after the identity-to-work change.
 
 ## Options
 
@@ -107,14 +109,14 @@ scene.leave()
 | svgr2 representation | `compress-swap` | Source representation becomes component representation |
 | Work → Writing | Spatial cut | Narrative energy changes |
 
-## Prototype order
+## Integration order
 
-1. Build five complete static frames in an isolated lab route.
-2. Add only the identity swap and project-title cuts.
+1. Preserve the five complete static frames in the landing implementation.
+2. Keep only the identity swap and project-title cuts.
 3. Attach each proof's real primitive independently.
-4. Implement keyed interruption and permanent settled states.
-5. Review desktop and mobile at the seven meaningful title frames and each proof's start, maximum deformation, switch, and final frames.
-6. Verify reduced motion, keyboard scrolling, fast reverse scrolling, and re-entry before replacing the landing sequence.
+4. Use project keys for proof selection and permanent settled states.
+5. Review desktop and mobile at the meaningful identity frames and each proof's start, maximum deformation, switch, and final frames.
+6. Verify reduced motion, keyboard scrolling, fast reverse scrolling, and re-entry before further visual expansion.
 
 ## Acceptance gate
 

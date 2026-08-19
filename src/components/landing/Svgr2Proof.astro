@@ -1,4 +1,4 @@
-<div class="svgr2-proof" data-proof="2" aria-hidden="true">
+<div class="svgr2-proof" data-proof="svgr2" aria-hidden="true">
   <div class="fixture">
     <svg viewBox="0 0 16 16" role="presentation"><path d="M8 1l7 14H1L8 1z" /></svg>
     <div class="representation" aria-live="polite">
@@ -42,8 +42,8 @@
     settle();
   };
 
-  window.addEventListener("landing:proof", ((event: CustomEvent<{ index: number; reduced: boolean }>) => {
-    if (event.detail.index === 2) void activate(event.detail.reduced);
+  window.addEventListener("landing:proof", ((event: CustomEvent<{ name: string; reduced: boolean }>) => {
+    if (event.detail.name === "svgr2") void activate(event.detail.reduced);
   }) as EventListener);
   window.addEventListener("pagehide", () => controller?.destroy(), { once: true });
 </script>
