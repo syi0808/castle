@@ -17,11 +17,10 @@ const jsonLd = { "@context": "https://schema.org", "@type": "BlogPosting", headl
 ---
 <BaseLayout title={`${post.data.title} — Yein Sung`} description={post.data.description} image={post.data.image} type="article" publishedDate={post.data.date.toISOString()} modifiedDate={post.data.updatedDate?.toISOString()}>
   <JsonLd data={jsonLd} /><article class="article-shell"><header><PostMeta date={post.data.date} readingTime={readingTime} tags={post.data.tags} /><h1>{post.data.title}</h1></header>
-    <div class="article-grid"><aside><TableOfContents headings={headings} /></aside><div><div class="prose"><slot /></div><RelatedPosts posts={relatedPosts} /><PrevNextNav prev={prevPost} next={nextPost} /><Giscus /></div></div>
+    <TableOfContents headings={headings} /><div class="article-body"><div class="prose"><slot /></div><RelatedPosts posts={relatedPosts} /><PrevNextNav prev={prevPost} next={nextPost} /><Giscus /></div>
   </article><CopyCodeButton />
 </BaseLayout>
 <style>
-  .article-shell { width: min(calc(100% - 3rem), 1040px); margin: 0 auto; padding: clamp(4rem, 9vw, 8rem) 0 2rem; } header { max-width: 820px; margin: 0 auto clamp(4rem, 8vw, 7rem); } h1 { max-width: 800px; margin: 1.2rem 0 0; font-size: clamp(2.7rem, 7vw, 5.8rem); font-weight: 500; letter-spacing: -.065em; line-height: .98; } .article-grid { display: grid; grid-template-columns: 180px minmax(0, 680px); justify-content: center; gap: clamp(2rem, 6vw, 5rem); } aside { position: sticky; top: 2rem; align-self: start; }
-  @media (max-width: 850px) { .article-grid { grid-template-columns: minmax(0, 680px); } aside { position: static; } }
+  .article-shell { width: min(calc(100% - 3rem), 1040px); margin: 0 auto; padding: clamp(4rem, 9vw, 8rem) 0 2rem; } header { max-width: 680px; margin: 0 auto clamp(4rem, 8vw, 6rem); } h1 { max-width: 680px; margin: 1.2rem 0 0; font-size: clamp(2.15rem, 4.8vw, 4.15rem); font-weight: 500; letter-spacing: -.055em; line-height: 1.02; } .article-body { max-width: 680px; margin-inline: auto; }
   @media (max-width: 700px) { .article-shell { width: min(calc(100% - 2rem), 1040px); } }
 </style>

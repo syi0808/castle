@@ -1,31 +1,81 @@
 ---
-interface Heading {
-  depth: number;
-  slug: string;
-  text: string;
-}
-
-interface Props {
-  headings: Heading[];
-}
-
+interface Heading { depth: number; slug: string; text: string; }
+interface Props { headings: Heading[]; }
 const { headings } = Astro.props;
-const toc = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+const toc = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 3);
 ---
 
 {toc.length > 0 && (
-  <nav aria-label="Table of contents" class="mb-10 border-l border-(--color-border)">
-    <ul class="pl-4 py-1 space-y-1.5">
-      {toc.map((heading) => (
-        <li class={heading.depth === 3 ? "pl-4" : ""}>
-          <a
-            href={`#${heading.slug}`}
-            class="font-mono text-xs text-(--color-text-sub) hover:text-(--color-text) transition-colors"
-          >
-            {heading.text}
-          </a>
-        </li>
-      ))}
-    </ul>
-  </nav>
+  <div class="toc-root" data-toc>
+    <button class="toc-toggle" type="button" aria-expanded="false" aria-controls="article-contents">Contents</button>
+    <button class="toc-backdrop" type="button" tabindex="-1" aria-label="Close contents"></button>
+    <aside class="toc-panel" id="article-contents" aria-label="Table of contents">
+      <div class="drawer-head"><strong>Contents</strong><button class="toc-close" type="button" aria-label="Close contents">×</button></div>
+      <nav>
+        <ol>
+          {toc.map((heading) => (
+            <li class:list={[{ nested: heading.depth === 3 }]}>
+              <a href={`#${heading.slug}`} data-heading={heading.slug}>{heading.text}</a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    </aside>
+  </div>
 )}
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-toc]").forEach((root) => {
+    const toggle = root.querySelector<HTMLButtonElement>(".toc-toggle")!;
+    const closeButtons = root.querySelectorAll<HTMLButtonElement>(".toc-close, .toc-backdrop");
+    const links = [...root.querySelectorAll<HTMLAnchorElement>("[data-heading]")];
+    const close = (restoreFocus = false) => { root.classList.remove("open"); toggle.setAttribute("aria-expanded", "false"); document.body.classList.remove("toc-open"); if (restoreFocus) toggle.focus(); };
+    const open = () => { root.classList.add("open"); toggle.setAttribute("aria-expanded", "true"); document.body.classList.add("toc-open"); root.querySelector<HTMLButtonElement>(".toc-close")?.focus(); };
+    toggle.addEventListener("click", () => root.classList.contains("open") ? close() : open());
+    closeButtons.forEach((button) => button.addEventListener("click", () => close(true)));
+    links.forEach((link) => link.addEventListener("click", close));
+    document.addEventListener("keydown", (event) => { if (event.key === "Escape" && root.classList.contains("open")) close(true); });
+    root.addEventListener("keydown", (event) => {
+      if (event.key !== "Tab" || !root.classList.contains("open")) return;
+      const focusable = [root.querySelector<HTMLButtonElement>(".toc-close")!, ...links];
+      const first = focusable[0]; const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    });
+
+    const sections = links.map((link) => document.getElementById(link.dataset.heading!)).filter(Boolean) as HTMLElement[];
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (!visible) return;
+      links.forEach((link) => link.toggleAttribute("aria-current", link.dataset.heading === visible.target.id));
+    }, { rootMargin: "-15% 0px -70% 0px" });
+    sections.forEach((section) => observer.observe(section));
+  });
+</script>
+
+<style>
+  .toc-toggle, .toc-backdrop, .drawer-head { display: none; }
+  .toc-panel { position: fixed; z-index: 30; top: 23vh; right: max(1.5rem, calc((100vw - 1420px) / 2)); width: 13.5rem; max-height: 58vh; overflow-y: auto; }
+  ol { margin: 0; padding: 0 0 0 1rem; border-left: 1px solid var(--color-border); list-style: none; }
+  li { margin: 0 0 .7rem; line-height: 1.35; }
+  li.nested { padding-left: .8rem; }
+  a { position: relative; display: block; color: var(--color-text-sub); font-size: .76rem; text-decoration: none; transition: color 150ms, transform 150ms; }
+  a:hover, a:focus-visible, a[aria-current] { color: var(--color-text); transform: translateX(3px); }
+  a[aria-current]::before { position: absolute; left: -1.2rem; color: var(--color-accent); content: "—"; }
+
+  @media (max-width: 1180px) {
+    :global(body.toc-open) { overflow: hidden; }
+    .toc-toggle { position: fixed; z-index: 31; top: 43%; right: 0; display: block; padding: .65rem .45rem; border: 1px solid var(--color-border); border-right: 0; color: var(--color-text-sub); background: var(--color-bg); font-size: .7rem; line-height: 1; cursor: pointer; writing-mode: vertical-rl; }
+    .toc-backdrop { position: fixed; z-index: 32; inset: 0; display: block; border: 0; background: color-mix(in srgb, var(--color-text) 22%, transparent); opacity: 0; pointer-events: none; transition: opacity 220ms; }
+    .toc-panel { z-index: 33; top: 0; right: 0; width: min(88vw, 22rem); max-height: none; height: 100dvh; padding: 1.5rem; border-left: 1px solid var(--color-border); background: var(--color-bg); transform: translateX(100%); transition: transform 280ms cubic-bezier(.22, .8, .25, 1); }
+    .drawer-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2.5rem; }
+    .drawer-head strong { font-size: 1.25rem; font-weight: 500; letter-spacing: -.025em; }
+    .toc-close { display: grid; width: 2.25rem; height: 2.25rem; padding: 0; border: 0; color: var(--color-text); background: transparent; font-size: 1.5rem; cursor: pointer; place-items: center; }
+    ol { padding-left: 1.2rem; }
+    li { margin-bottom: 1rem; }
+    a { font-size: .9rem; }
+    .open .toc-panel { transform: translateX(0); }
+    .open .toc-backdrop { opacity: 1; pointer-events: auto; }
+    .open .toc-toggle { opacity: 0; pointer-events: none; }
+  }
+</style>
