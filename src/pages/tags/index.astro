@@ -19,22 +19,9 @@ const collectionLd = {
 
 <BaseLayout title="Tags — Yein Sung" description="Browse posts by topic.">
   <JsonLd data={collectionLd} />
-  <div class="mx-auto max-w-[740px] px-6 py-16">
-    <h1 class="font-mono text-[10px] tracking-widest uppercase text-(--color-text-sub) mb-6 pb-2 border-b border-(--color-border)">
-      Tags
-    </h1>
-    <ul class="flex flex-wrap gap-2">
-      {[...tags.entries()].map(([tag, count]) => (
-        <li>
-          <a
-            href={`${import.meta.env.BASE_URL}tags/${tag}`}
-            class="inline-flex items-center gap-2 px-3 py-1.5 font-mono text-xs border border-(--color-border) text-(--color-text-sub) hover:text-(--color-text) hover:border-(--color-text-sub) hover:bg-(--color-surface) transition-colors"
-          >
-            {tag}
-            <span class="text-(--color-accent)">{count}</span>
-          </a>
-        </li>
-      ))}
-    </ul>
-  </div>
+  <div class="site-shell tags-page"><h1>Tags</h1><ul>{[...tags.keys()].map((tag) => <li><a class="rough-link" href={`${import.meta.env.BASE_URL}tags/${tag}`}>{tag}</a></li>)}</ul></div>
 </BaseLayout>
+
+<style>
+  .tags-page { padding: clamp(4rem, 9vw, 8rem) 0 2rem; } h1 { margin: 0 0 5rem; font-size: clamp(4rem, 10vw, 9rem); font-weight: 600; letter-spacing: -.08em; line-height: .8; } ul { display: flex; flex-wrap: wrap; gap: 1.2rem 2.5rem; margin: 0; padding: 0; list-style: none; } a { font-size: clamp(1.15rem, 2.2vw, 1.7rem); font-weight: 500; text-decoration: none; }
+</style>
