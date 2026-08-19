@@ -1,6 +1,5 @@
 ---
 import LabLayout from "../../layouts/LabLayout.astro";
-import TypeReelVisuals from "../../components/lab/TypeReelVisuals.astro";
 
 const projectNames = ["rougher-stuff", "trandimation", "svgr2", "zctf"];
 ---
@@ -10,25 +9,15 @@ const projectNames = ["rougher-stuff", "trandimation", "svgr2", "zctf"];
     <section class="hero-b">
       <h1>Yein Sung</h1>
       <p>I make tools, interfaces,<br />and things I wish existed.</p>
-      <div class="hero-cel-study" aria-hidden="true">
-        <span class="hero-pose pose-0"><i></i><b>0</b></span>
-        <span class="hero-pose pose-1"><i></i><b>.25</b></span>
-        <span class="hero-pose pose-2"><i></i><b>.50</b></span>
-        <span class="hero-pose pose-3"><i></i><b>.72</b></span>
-        <span class="hero-pose pose-4"><i></i><b>1</b></span>
-        <span class="hero-live-pose" data-hero-live-pose></span>
-      </div>
     </section>
 
     <section class="reel" data-reel>
       <div class="reel-frame">
-        <span class="chapter-number" data-chapter-number>01 / 04</span>
         <div class="title-stage" aria-live="polite">
           {projectNames.map((name, index) => (
             <h2 class="project-title" data-project-title={index} aria-hidden={index !== 0}>{name}</h2>
           ))}
         </div>
-        <div class="visual-stage"><TypeReelVisuals /></div>
       </div>
 
       <div class="chapters">
@@ -44,16 +33,9 @@ const projectNames = ["rougher-stuff", "trandimation", "svgr2", "zctf"];
   import { annotate } from "@rougher-stuff/rough-notation";
   import { createEffect } from "@tradimation/core";
   import type { EffectController } from "@tradimation/core";
-  import gsap from "gsap";
-  import MotionPathPlugin from "gsap/MotionPathPlugin";
-
-  gsap.registerPlugin(MotionPathPlugin);
 
   const titles = [...document.querySelectorAll<HTMLElement>("[data-project-title]")];
   const chapters = [...document.querySelectorAll<HTMLElement>("[data-chapter]")];
-  const visuals = [...document.querySelectorAll<HTMLElement>("[data-reel-visual]")];
-  const chapterNumber = document.querySelector<HTMLElement>("[data-chapter-number]");
-  const heroLivePose = document.querySelector<HTMLElement>("[data-hero-live-pose]");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const accent = getComputedStyle(document.documentElement).getPropertyValue("--color-accent").trim();
 
@@ -62,10 +44,7 @@ const projectNames = ["rougher-stuff", "trandimation", "svgr2", "zctf"];
   let transitioning = false;
   let lastSwap: EffectController | undefined;
   let punch: EffectController | undefined;
-  let heroMotion: EffectController | undefined;
   let roughUnderline: ReturnType<typeof annotate> | undefined;
-  let roughVisualMark: ReturnType<typeof annotate> | undefined;
-  let visualTimeline: gsap.core.Timeline | undefined;
   let reelEntered = false;
 
   const applyCurrentState = (index: number) => {
@@ -79,67 +58,6 @@ const projectNames = ["rougher-stuff", "trandimation", "svgr2", "zctf"];
   const showUnderline = () => {
     if (!roughUnderline) return;
     roughUnderline.show({ duration: reducedMotion ? 0 : 650 });
-  };
-
-  const prepareDrawPath = (path: SVGPathElement) => {
-    const length = path.getTotalLength();
-    gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
-    return path;
-  };
-
-  const activateVisual = (index: number, animate = true) => {
-    visualTimeline?.kill();
-    roughVisualMark?.hide();
-    visuals.forEach((visual, visualIndex) => {
-      gsap.set(visual, { autoAlpha: visualIndex === index ? 1 : 0 });
-    });
-    if (chapterNumber) chapterNumber.textContent = `${String(index + 1).padStart(2, "0")} / 04`;
-
-    const scene = visuals[index];
-    if (!scene || reducedMotion || !animate) {
-      if (index === 0) roughVisualMark?.show({ duration: 0 });
-      return;
-    }
-
-    visualTimeline = gsap.timeline({ defaults: { ease: "power3.out" } });
-    if (index === 0) {
-      visualTimeline
-        .fromTo(scene.querySelector(".interface-plane"), { opacity: 0, scale: .94 }, { opacity: 1, scale: 1, duration: .55 })
-        .from(scene.querySelectorAll(".interface-copy i, .interface-aside i"), { scaleX: 0, transformOrigin: "left", stagger: .06, duration: .32 }, .18)
-        .call(() => { roughVisualMark?.show({ duration: 520 }); }, undefined, .5);
-    }
-    if (index === 1) {
-      const poses = scene.querySelectorAll(".cel-pose");
-      visualTimeline
-        .fromTo(poses, { opacity: 0, y: 18 }, { opacity: 1, y: 0, stagger: .08, duration: .32 })
-        .to(scene.querySelector(".cel-playhead"), { x: 658, duration: 1.25, ease: "steps(4)" }, .28)
-        .to(poses, { opacity: .28, duration: .1 }, .28)
-        .to(poses, { opacity: 1, stagger: .28, duration: .08 }, .32);
-    }
-    if (index === 2) {
-      const paths = [...scene.querySelectorAll<SVGPathElement>(".transform-path, .ast-tree path")].map(prepareDrawPath);
-      visualTimeline
-        .from(scene.querySelector(".svg-source"), { opacity: 0, x: -28, duration: .4 })
-        .to(paths, { strokeDashoffset: 0, stagger: .12, duration: .35 }, .22)
-        .from(scene.querySelectorAll(".ast-tree circle"), { scale: 0, transformOrigin: "center", stagger: .06, duration: .28 }, .34)
-        .to(scene.querySelector(".component-result"), { opacity: 1, duration: .4 }, .7);
-    }
-    if (index === 3) {
-      const directPath = scene.querySelector<SVGPathElement>(".direct-rail");
-      const parsedPath = scene.querySelector<SVGPathElement>(".parsed-route");
-      const packets = scene.querySelectorAll<SVGGElement>(".binary-packet");
-      const tokens = scene.querySelectorAll<SVGGElement>(".json-token");
-      if (directPath && parsedPath) {
-        gsap.set(packets, { opacity: 0 });
-        gsap.set(tokens, { opacity: 0 });
-        visualTimeline
-          .from(scene.querySelectorAll(".runtime-port"), { opacity: 0, scale: .8, transformOrigin: "center", duration: .35 })
-          .set(packets, { opacity: 1 }, .18)
-          .set(tokens, { opacity: 1 }, .18)
-          .to(packets, { duration: .78, stagger: .18, ease: "power1.inOut", motionPath: { path: directPath, align: directPath, alignOrigin: [.5, .5] } }, .18)
-          .to(tokens, { duration: 1.45, stagger: .22, ease: "power1.inOut", motionPath: { path: parsedPath, align: parsedPath, alignOrigin: [.5, .5] } }, .18);
-      }
-    }
   };
 
   const hideUnderline = async () => {
@@ -193,7 +111,6 @@ const projectNames = ["rougher-stuff", "trandimation", "svgr2", "zctf"];
 
       currentIndex = destinationIndex;
       applyCurrentState(currentIndex);
-      activateVisual(currentIndex);
       if (currentIndex === 0) showUnderline();
       if (currentIndex === 1) playPunch();
     }
@@ -216,25 +133,6 @@ const projectNames = ["rougher-stuff", "trandimation", "svgr2", "zctf"];
         animationDuration: 650,
       });
     }
-    const roughVisualTarget = document.querySelector<HTMLElement>("[data-rough-visual-target]");
-    if (roughVisualTarget) {
-      roughVisualMark = annotate(roughVisualTarget, {
-        type: "box",
-        color: accent,
-        strokeWidth: 2,
-        iterations: 1,
-        roughness: 1.25,
-        seed: 43,
-        padding: 8,
-        animationDuration: 520,
-      });
-    }
-
-    if (heroLivePose && !reducedMotion) {
-      gsap.from(".hero-pose", { opacity: 0, y: 12, stagger: .07, duration: .32, ease: "power2.out" });
-      heroMotion = createEffect(heroLivePose, "text-punch", { duration: 650, cleanup: "restore" });
-      window.setTimeout(() => { void heroMotion?.play(); }, 420);
-    }
 
     const observer = new IntersectionObserver((entries) => {
       for (const entry of entries) {
@@ -243,10 +141,7 @@ const projectNames = ["rougher-stuff", "trandimation", "svgr2", "zctf"];
         if (!Number.isFinite(index)) continue;
         if (!reelEntered) {
           reelEntered = true;
-          if (index === 0) {
-            showUnderline();
-            activateVisual(0);
-          }
+          if (index === 0) showUnderline();
         }
         void transitionTo(index);
       }
@@ -256,11 +151,8 @@ const projectNames = ["rougher-stuff", "trandimation", "svgr2", "zctf"];
     window.addEventListener("pagehide", () => {
       observer.disconnect();
       roughUnderline?.remove();
-      roughVisualMark?.remove();
       punch?.destroy();
-      heroMotion?.destroy();
       lastSwap?.destroy();
-      visualTimeline?.kill();
     }, { once: true });
   };
 
@@ -271,37 +163,23 @@ const projectNames = ["rougher-stuff", "trandimation", "svgr2", "zctf"];
 <style>
   .prototype-b { overflow: clip; }
   .hero-b { position: relative; min-height: 100svh; padding: clamp(1.25rem, 3vw, 3rem); }
-  .hero-b h1 { position: absolute; top: 34%; left: clamp(1.25rem, 3vw, 3rem); margin: 0; font-size: clamp(4.2rem, 17vw, 16rem); font-weight: 500; letter-spacing: -.085em; line-height: .78; white-space: nowrap; transform: translateY(-50%); }
-  .hero-b p { position: absolute; bottom: clamp(2.5rem, 8vh, 6rem); left: clamp(1.25rem, 3vw, 3rem); margin: 0; font-size: clamp(1.35rem, 2.35vw, 2.4rem); font-weight: 500; letter-spacing: -.04em; line-height: 1.15; }
-  .hero-cel-study { position: absolute; right: clamp(1.25rem, 4vw, 4rem); bottom: clamp(2.5rem, 8vh, 6rem); display: flex; align-items: end; gap: clamp(.75rem, 1.4vw, 1.5rem); width: min(48vw, 44rem); height: 9rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); }
-  .hero-pose { position: relative; display: grid; flex: 1; height: 7rem; place-items: end center; }
-  .hero-pose i, .hero-live-pose { display: block; width: 3.75rem; height: 3.75rem; border: 1px solid var(--color-text-sub); transform-origin: center; }
-  .hero-pose.pose-1 i { transform: scale(1.32, .74); }
-  .hero-pose.pose-2 i { transform: scale(.78, 1.28); }
-  .hero-pose.pose-3 i { transform: scale(1.08, .95); }
-  .hero-pose b { position: absolute; bottom: -1.35rem; color: var(--color-text-sub); font: 400 .65rem var(--font-mono); }
-  .hero-live-pose { position: absolute; bottom: 1.5rem; left: 50%; border-color: var(--color-accent); background: var(--color-accent); transform: translateX(-50%); }
+  .hero-b h1 { position: absolute; top: 39%; left: clamp(1.25rem, 3vw, 3rem); margin: 0; font-size: clamp(4.2rem, 17vw, 16rem); font-weight: 500; letter-spacing: -.085em; line-height: .78; white-space: nowrap; transform: translateY(-50%); }
+  .hero-b p { position: absolute; right: clamp(1.25rem, 5vw, 6rem); bottom: clamp(3rem, 10vh, 7rem); margin: 0; font-size: clamp(1.35rem, 2.35vw, 2.4rem); font-weight: 500; letter-spacing: -.04em; line-height: 1.15; }
   .reel { position: relative; display: grid; background: var(--color-text); color: var(--color-bg); }
   .reel-frame, .chapters { grid-area: 1 / 1; }
-  .reel-frame { position: sticky; z-index: 0; top: 0; height: 100svh; overflow: hidden; }
-  .chapter-number { position: absolute; z-index: 3; top: 4vh; right: clamp(1.25rem, 4vw, 4rem); color: color-mix(in srgb, var(--color-bg) 55%, transparent); font: 400 .7rem var(--font-mono); }
-  .title-stage { position: absolute; z-index: 2; top: 8vh; right: clamp(1.25rem, 4vw, 4rem); left: clamp(1.25rem, 4vw, 4rem); height: clamp(5rem, 10vw, 9rem); }
-  .project-title { position: absolute; margin: 0; color: var(--color-bg); font-size: clamp(4rem, 8.5vw, 8.5rem); font-weight: 500; letter-spacing: -.075em; line-height: .82; transform-origin: left center; white-space: nowrap; }
+  .reel-frame { position: sticky; z-index: 0; top: 0; display: grid; height: 100svh; overflow: hidden; place-items: center; }
+  .title-stage { position: relative; display: grid; width: calc(100% - clamp(2rem, 8vw, 9rem)); height: min(34vw, 26rem); place-items: center; }
+  .project-title { position: absolute; margin: 0; color: var(--color-bg); font-size: clamp(4rem, 11vw, 11.5rem); font-weight: 500; letter-spacing: -.075em; line-height: .82; text-align: center; transform-origin: center; white-space: nowrap; }
   .project-title:not(:first-child) { visibility: hidden; }
-  .visual-stage { position: absolute; z-index: 1; inset: 24vh 2vw 3vh; }
   .chapters { position: relative; z-index: 1; pointer-events: none; }
   .chapter { height: 92svh; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; margin: -1px; padding: 0; border: 0; clip: rect(0 0 0 0); white-space: nowrap; }
 
   @media (max-width: 700px) {
-    .hero-b h1 { top: 27%; font-size: clamp(4rem, 19vw, 6rem); }
-    .hero-b p { bottom: 7vh; font-size: clamp(1.35rem, 6.5vw, 2rem); }
-    .hero-cel-study { right: 1.25rem; bottom: 24vh; left: 1.25rem; gap: .4rem; width: auto; height: 7rem; }
-    .hero-pose i, .hero-live-pose { width: 2.4rem; height: 2.4rem; }
-    .hero-live-pose { bottom: 1.5rem; }
-    .title-stage { top: 10vh; right: 1.25rem; left: 1.25rem; }
+    .hero-b h1 { top: 34%; font-size: clamp(4rem, 19vw, 6rem); }
+    .hero-b p { right: 1.25rem; bottom: 12vh; left: 1.25rem; font-size: clamp(1.4rem, 7vw, 2rem); }
+    .title-stage { width: calc(100% - 2rem); height: 38vw; }
     .project-title { font-size: clamp(3.25rem, 15vw, 5.5rem); }
-    .visual-stage { inset: 27vh 0 5vh; }
     .chapter { height: 82svh; }
   }
 
