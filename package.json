@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@rougher-stuff/rough-notation": "link:../rougher-stuff/packages/rough-notation",
-    "@tradimation/core": "link:../cel-motion",
+    "@tradimation/core": "link:../tradimation",
     "@astrojs/rss": "^4.0.17",
     "@astrojs/sitemap": "^3.7.1",
     "astro": "^6.0.8",

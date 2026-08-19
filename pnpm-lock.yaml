@@ -18,8 +18,8 @@ importers:
         specifier: link:../rougher-stuff/packages/rough-notation
         version: link:../rougher-stuff/packages/rough-notation
       '@tradimation/core':
-        specifier: link:../cel-motion
-        version: link:../cel-motion
+        specifier: link:../tradimation
+        version: link:../tradimation
       astro:
         specifier: ^6.0.8
         version: 6.0.8(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)
