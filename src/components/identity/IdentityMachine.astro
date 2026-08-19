@@ -1,4 +1,4 @@
-<div class="machine" data-identity-machine aria-hidden="true">
+<div class="machine" aria-hidden="true">
   <svg viewBox="0 0 600 440" role="presentation">
     <g class="blueprint"><path d="M35 75H565M35 220H565M35 365H565M110 40V400M300 40V400M490 40V400" /></g>
 
@@ -35,23 +35,8 @@
   </svg>
 </div>
 
-<script>
-  const machine = document.querySelector<HTMLElement>("[data-identity-machine]");
-  if (machine) {
-    machine.addEventListener("pointermove", (event) => {
-      const bounds = machine.getBoundingClientRect();
-      machine.style.setProperty("--mx", `${(event.clientX - bounds.left) / bounds.width - .5}`);
-      machine.style.setProperty("--my", `${(event.clientY - bounds.top) / bounds.height - .5}`);
-    });
-    machine.addEventListener("pointerdown", () => {
-      machine.classList.remove("ping");
-      requestAnimationFrame(() => machine.classList.add("ping"));
-    });
-  }
-</script>
-
 <style>
-  .machine { --mx: 0; --my: 0; width: min(100%, 40rem); cursor: crosshair; user-select: none; }
+  .machine { width: min(100%, 40rem); user-select: none; }
   svg { display: block; width: 100%; overflow: visible; }
   path, rect, circle { fill: none; stroke: var(--color-text); stroke-width: 1.45; vector-effect: non-scaling-stroke; }
   .blueprint { opacity: .42; }
@@ -67,15 +52,5 @@
   .ui-c { fill: var(--color-bg); }
   .scribble { stroke: var(--color-accent); stroke-width: 2; }
   .cursor { fill: var(--color-text); stroke: var(--color-bg); stroke-width: 3; }
-  .spark { fill: var(--color-accent); stroke: var(--color-accent); transform-origin: 357px 98px; animation: breathe 4s ease-in-out infinite; }
-  .layer-back { transform: translate(calc(var(--mx) * 8px), calc(var(--my) * 8px)); transition: transform 180ms ease-out; }
-  .layer-mid { transform: translate(calc(var(--mx) * -7px), calc(var(--my) * -7px)); transition: transform 220ms ease-out; }
-  .layer-front { transform: translate(calc(var(--mx) * 4px), calc(var(--my) * 4px)); transition: transform 160ms ease-out; }
-  .ping .tree { animation: transform-node 620ms var(--ease-out-back); transform-origin: 268px 208px; }
-  .ping .ui-a { animation: interface-pop 620ms var(--ease-out-back); transform-origin: 480px 165px; }
-  .ping .cursor { animation: cursor-click 620ms var(--ease-out-back); transform-origin: 521px 273px; }
-  @keyframes breathe { 50% { transform: rotate(12deg) scale(1.12); } }
-  @keyframes transform-node { 0% { transform: scale(1); } 28% { transform: scale(1.25, .72); } 62% { transform: translateX(64px) scale(.78, 1.2); } 100% { transform: none; } }
-  @keyframes interface-pop { 0%, 42% { transform: scaleX(.35); opacity: .25; } 72% { transform: scaleX(1.1); } 100% { transform: scale(1); opacity: 1; } }
-  @keyframes cursor-click { 35% { transform: translate(-7px, -8px); } 55% { transform: translate(-4px, -4px) scale(.82); } 100% { transform: none; } }
+  .spark { fill: var(--color-accent); stroke: var(--color-accent); }
 </style>

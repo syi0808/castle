@@ -2,7 +2,6 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import IdentityMachine from "../components/identity/IdentityMachine.astro";
 import WorkIndex from "../components/work/WorkIndex.astro";
-import InteractiveFragment from "../components/InteractiveFragment.astro";
 import WritingIndex from "../components/writing/WritingIndex.astro";
 import JsonLd from "../components/JsonLd.astro";
 import { getSortedPosts } from "../lib/posts";
@@ -18,12 +17,11 @@ const jsonLd = [{ "@context": "https://schema.org", "@type": "WebSite", name: SI
       <div class="machine-wrap"><IdentityMachine /></div>
     </section>
     <WorkIndex />
-    <InteractiveFragment />
     <div class="writing-wrap"><WritingIndex posts={recentPosts} /></div>
   </div>
 </BaseLayout>
 <style>
-  .hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(26rem, .95fr); align-items: center; min-height: calc(100svh - 5rem); padding: 3rem 0 7rem; } .identity { position: relative; z-index: 1; } h1 { margin: 0; font-size: clamp(5.5rem, 10.5vw, 10.8rem); font-weight: 600; letter-spacing: -.09em; line-height: .76; } .intro { max-width: 12em; margin: 3.5rem 0 0; font-size: clamp(1.5rem, 2.35vw, 2.15rem); font-weight: 500; line-height: 1.28; letter-spacing: -.04em; } .machine-wrap { display: grid; min-width: 0; place-items: center; } .writing-wrap { padding-top: calc(var(--section-space) * .55); }
+  .hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(26rem, .95fr); align-items: center; min-height: calc(100svh - 5rem); padding: 3rem 0 7rem; } .identity { position: relative; z-index: 1; } h1 { margin: 0; font-size: clamp(5.5rem, 10.5vw, 10.8rem); font-weight: 600; letter-spacing: -.09em; line-height: .76; } .intro { max-width: 12em; margin: 3.5rem 0 0; font-size: clamp(1.5rem, 2.35vw, 2.15rem); font-weight: 500; line-height: 1.28; letter-spacing: -.04em; } .machine-wrap { display: grid; min-width: 0; place-items: center; } .writing-wrap { padding-top: var(--section-space); }
   @media (max-width: 900px) { .hero { grid-template-columns: 1fr; min-height: 0; padding: 5rem 0 7rem; } h1 { font-size: clamp(5.3rem, 22vw, 9rem); } .intro { font-size: clamp(1.4rem, 5.5vw, 2rem); } .machine-wrap { margin-top: 2rem; } }
   @media (max-width: 520px) { .hero { padding-top: 3.5rem; } }
 </style>
