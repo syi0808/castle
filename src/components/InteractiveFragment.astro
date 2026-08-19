@@ -1,0 +1,22 @@
+<section class="fragment" aria-label="Interactive motion experiment">
+  <div class="track" data-toy>
+    <div class="trail" aria-hidden="true"></div><button class="orb" type="button" aria-label="Drag the object to play"><span>○</span></button><span class="hint">drag</span>
+  </div>
+</section>
+<script>
+  const toy = document.querySelector<HTMLElement>("[data-toy]");
+  if (toy) {
+    const orb = toy.querySelector<HTMLButtonElement>(".orb")!; let dragging = false; let startX = 0; let origin = 0; let position = 0;
+    const setPosition = (next: number) => { const limit = toy.clientWidth - orb.offsetWidth; position = Math.max(0, Math.min(limit, next)); orb.style.setProperty("--x", `${position}px`); toy.style.setProperty("--trail", `${position + orb.offsetWidth / 2}px`); };
+    orb.addEventListener("pointerdown", (event) => { dragging = true; startX = event.clientX; origin = position; orb.setPointerCapture(event.pointerId); orb.classList.add("dragging"); });
+    orb.addEventListener("pointermove", (event) => { if (dragging) setPosition(origin + event.clientX - startX); });
+    orb.addEventListener("pointerup", () => { dragging = false; orb.classList.remove("dragging"); orb.classList.add("settling"); setTimeout(() => orb.classList.remove("settling"), 500); });
+    orb.addEventListener("keydown", (event) => { if (event.key === "ArrowRight") setPosition(position + 24); if (event.key === "ArrowLeft") setPosition(position - 24); });
+  }
+</script>
+<style>
+  .fragment { display: grid; place-items: center; min-height: 28rem; } .track { --trail: 2rem; position: relative; width: min(88%, 48rem); height: 8rem; border-bottom: 1px solid var(--color-border); touch-action: none; } .track::before, .track::after { position: absolute; bottom: -.25rem; width: 1px; height: .5rem; background: var(--color-border); content: ""; } .track::after { right: 0; }
+  .trail { position: absolute; bottom: -.12rem; left: 0; width: var(--trail); height: 5px; background: url("data:image/svg+xml,%3Csvg width='100' height='5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 3c17-5 31 4 49 0s33 4 51-1' fill='none' stroke='%23a04432' stroke-width='1.5'/%3E%3C/svg%3E") repeat-x; opacity: .75; }
+  .orb { --x: 0px; position: absolute; bottom: .75rem; left: 0; display: grid; width: 4rem; height: 4rem; padding: 0; border: 0; color: var(--color-text); background: transparent; cursor: grab; transform: translateX(var(--x)); place-items: center; } .orb span { display: block; font-family: var(--font-mono); font-size: 4rem; font-weight: 200; line-height: 1; } .orb.dragging { cursor: grabbing; } .orb.dragging span { transform: scale(1.25, .72) rotate(8deg); } .orb.settling span { animation: settle 480ms var(--ease-out-back); } .hint { position: absolute; bottom: 4.8rem; left: .5rem; color: var(--color-text-sub); font-family: var(--font-mono); font-size: .58rem; letter-spacing: .14em; text-transform: uppercase; }
+  @keyframes settle { 0% { transform: scale(1.3, .7); } 45% { transform: scale(.8, 1.2); } 100% { transform: scale(1); } }
+</style>

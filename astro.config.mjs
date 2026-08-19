@@ -1,6 +1,7 @@
 import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 import sitemap from "@astrojs/sitemap";
+import roughMarkdown from "./src/lib/rough-markdown.mjs";
 
 export default defineConfig({
   site: "https://blog.castle-yein.com",
@@ -9,6 +10,7 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
   markdown: {
+    remarkPlugins: [roughMarkdown],
     shikiConfig: {
       themes: {
         light: "github-light",

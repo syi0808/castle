@@ -1,79 +1,29 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import PostList from "../components/PostList.astro";
+import IdentityMachine from "../components/identity/IdentityMachine.astro";
+import WorkIndex from "../components/work/WorkIndex.astro";
+import InteractiveFragment from "../components/InteractiveFragment.astro";
+import WritingIndex from "../components/writing/WritingIndex.astro";
 import JsonLd from "../components/JsonLd.astro";
 import { getSortedPosts } from "../lib/posts";
-import { projects } from "../data/projects";
 import { SITE, AUTHOR } from "../lib/seo";
-
-const posts = await getSortedPosts();
-const recentPosts = posts.slice(0, 5);
-
-const websiteJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: SITE.title,
-  url: SITE.url,
-  inLanguage: SITE.lang,
-  description: SITE.description,
-};
-
-const personJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Person",
-  name: AUTHOR.name,
-  url: SITE.url,
-  sameAs: [AUTHOR.github],
-};
+const recentPosts = (await getSortedPosts()).slice(0, 5);
+const jsonLd = [{ "@context": "https://schema.org", "@type": "WebSite", name: SITE.title, url: SITE.url, inLanguage: SITE.lang }, { "@context": "https://schema.org", "@type": "Person", name: AUTHOR.name, url: SITE.url, sameAs: [AUTHOR.github] }];
 ---
-
-<BaseLayout title="Yein Sung — Developer Blog on Software Engineering & Open Source" description="Developer blog — software engineering, open-source tools, and development practices.">
-  <JsonLd data={websiteJsonLd} />
-  <JsonLd data={personJsonLd} />
-  <div class="mx-auto max-w-[740px] px-6 py-16">
-    <section class="mb-16">
-      <p class="font-mono text-xs tracking-widest uppercase text-(--color-accent) mb-3">Developer</p>
-      <h1 class="text-xl font-semibold tracking-tight mb-3">Yein Sung</h1>
-      <p class="text-sm text-(--color-text-sub) leading-relaxed max-w-md">
-        Building open-source tools for better development workflows.
-      </p>
+<BaseLayout title="Yein Sung — Software Engineer" description="Tools, interfaces, open source, and writing by Yein Sung.">
+  {jsonLd.map((data) => <JsonLd data={data} />)}
+  <div class="site-shell">
+    <section class="hero">
+      <div class="identity"><p class="eyebrow">Software Engineer / Seoul</p><h1>YEIN<br />SUNG</h1><p class="intro">I make tools, interfaces,<br />and things I wish existed.</p><div class="labels"><span>SOFTWARE</span><span>OPEN SOURCE</span><span>INTERACTION</span></div></div>
+      <div class="machine-wrap"><IdentityMachine /></div>
     </section>
-
-    {projects.length > 0 && (
-      <section class="mb-16">
-        <h2 class="font-mono text-[10px] tracking-widest uppercase text-(--color-text-sub) mb-4 pb-2 border-b border-(--color-border)">
-          Projects
-        </h2>
-        <ul class="space-y-2">
-          {projects.map((project) => (
-            <li>
-              <a
-                href={project.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="group flex items-baseline gap-3 py-1.5 -mx-3 px-3 hover:bg-(--color-surface) transition-colors"
-              >
-                <span class="font-mono text-sm text-(--color-text)">
-                  {project.name}
-                </span>
-                <span class="text-xs text-(--color-text-sub)">
-                  {project.description}
-                </span>
-                <span class="font-mono text-[10px] text-(--color-accent) ml-auto shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                  &rarr;
-                </span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </section>
-    )}
-
-    <section>
-      <h2 class="font-mono text-[10px] tracking-widest uppercase text-(--color-text-sub) mb-4 pb-2 border-b border-(--color-border)">
-        Recent
-      </h2>
-      <PostList posts={recentPosts} />
-    </section>
+    <WorkIndex />
+    <InteractiveFragment />
+    <div class="writing-wrap"><WritingIndex posts={recentPosts} /></div>
   </div>
 </BaseLayout>
+<style>
+  .hero { display: grid; grid-template-columns: .82fr 1.18fr; align-items: center; min-height: calc(100svh - 5rem); padding: 4rem 0 7rem; } .identity { position: relative; z-index: 1; } .eyebrow { margin: 0 0 2rem; } h1 { margin: 0; font-size: clamp(4.4rem, 9vw, 8.7rem); font-weight: 500; letter-spacing: -.085em; line-height: .78; } .intro { margin: 3rem 0 2.5rem; font-size: clamp(1.05rem, 1.5vw, 1.35rem); line-height: 1.5; } .labels { display: flex; flex-wrap: wrap; gap: .55rem 1.3rem; color: var(--color-text-sub); font-family: var(--font-mono); font-size: .58rem; letter-spacing: .12em; } .machine-wrap { display: grid; place-items: center; min-width: 0; } .writing-wrap { padding-top: calc(var(--section-space) * .55); }
+  @media (max-width: 850px) { .hero { grid-template-columns: 1fr; min-height: 0; padding: 5rem 0 7rem; } h1 { font-size: clamp(4.3rem, 20vw, 8rem); } .machine-wrap { margin-top: 1rem; } }
+  @media (max-width: 520px) { .hero { padding-top: 3.5rem; } .labels { max-width: 18rem; } }
+</style>

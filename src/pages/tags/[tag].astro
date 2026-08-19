@@ -1,54 +1,9 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import PostList from "../../components/PostList.astro";
-import JsonLd from "../../components/JsonLd.astro";
+import WritingIndex from "../../components/writing/WritingIndex.astro";
 import { getSortedPosts, getAllTags } from "../../lib/posts";
-import { SITE } from "../../lib/seo";
-
-export async function getStaticPaths() {
-  const posts = await getSortedPosts();
-  const tags = getAllTags(posts);
-
-  return [...tags.keys()].map((tag) => ({
-    params: { tag },
-    props: {
-      posts: posts.filter((post) => post.data.tags.includes(tag)),
-    },
-  }));
-}
-
-const { tag } = Astro.params;
-const { posts } = Astro.props;
-
-const collectionLd = {
-  "@context": "https://schema.org",
-  "@type": "CollectionPage",
-  name: `Posts tagged "${tag}"`,
-  description: `Articles about ${tag} — software engineering, open-source tools, and development practices.`,
-  url: `${SITE.url}/tags/${tag}/`,
-  inLanguage: SITE.lang,
-  mainEntity: {
-    "@type": "ItemList",
-    numberOfItems: posts.length,
-    itemListElement: posts.map((post, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      url: `${SITE.url}/${post.id}/`,
-      name: post.data.title,
-    })),
-  },
-};
+export async function getStaticPaths() { const posts = await getSortedPosts(); return [...getAllTags(posts).keys()].map((tag) => ({ params: { tag }, props: { posts: posts.filter((post) => post.data.tags.includes(tag)) } })); }
+const { tag } = Astro.params; const { posts } = Astro.props;
 ---
-
-<BaseLayout title={`${tag} — Yein Sung`} description={`Articles about ${tag} — software engineering, open-source tools, and development practices.`}>
-  <JsonLd data={collectionLd} />
-  <div class="mx-auto max-w-[740px] px-6 py-16">
-    <h1 class="font-mono text-[10px] tracking-widest uppercase text-(--color-text-sub) mb-6 pb-2 border-b border-(--color-border)">
-      Tag / {tag}
-    </h1>
-    <p class="text-sm text-(--color-text-sub) mb-6">
-      {posts.length} {posts.length === 1 ? "article" : "articles"} tagged with "{tag}".
-    </p>
-    <PostList posts={posts} />
-  </div>
-</BaseLayout>
+<BaseLayout title={`${tag} — Yein Sung`} description={`Writing tagged ${tag}.`}><div class="site-shell tag-page"><header><p class="eyebrow">Tag / {posts.length} notes</p><h1>{tag}</h1></header><WritingIndex posts={posts} heading="Writing" /></div></BaseLayout>
+<style>.tag-page { padding: clamp(4rem, 10vw, 8rem) 0 2rem; } header { margin-bottom: 5rem; } header p { margin: 0 0 1rem; } h1 { margin: 0; font-size: clamp(3.5rem, 9vw, 7rem); font-weight: 500; letter-spacing: -.07em; line-height: .9; }</style>

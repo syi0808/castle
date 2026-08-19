@@ -1,0 +1,35 @@
+---
+import ProjectVisual from "./ProjectVisual.astro";
+import { projects } from "../../data/projects";
+const featured = projects.filter((project) => project.featured).sort((a, b) => a.order - b.order);
+---
+<section class="work-index" data-work-index>
+  <div class="work-list">
+    <div class="section-head"><h2 class="section-label">Selected Work</h2><a href={`${import.meta.env.BASE_URL}work`} class="all-link rough-link">All work ↗</a></div>
+    <ol>
+      {featured.map((project, index) => <li>
+        <a class="project-row" data-project={project.visual} href={project.website ?? project.github} target="_blank" rel="noopener noreferrer">
+          <span class="number">{String(index + 1).padStart(2, "0")}</span><span class="project-copy"><strong class="rough-link">{project.name}</strong><small>{project.tagline}</small></span><span class="year">{project.year} ↗</span>
+        </a>
+        <div class="mobile-visual"><ProjectVisual name={project.visual!} active /></div>
+      </li>)}
+    </ol>
+  </div>
+  <div class="stage" aria-live="polite"><span class="stage-idle">·</span>{featured.map((project, index) => <ProjectVisual name={project.visual!} active={index === 0} />)}</div>
+</section>
+<script>
+  document.querySelectorAll<HTMLElement>("[data-work-index]").forEach((index) => {
+    const rows = [...index.querySelectorAll<HTMLElement>("[data-project]")]; const visuals = [...index.querySelectorAll<HTMLElement>(".stage [data-visual]")];
+    const activate = (name: string | undefined) => { rows.forEach((row) => row.classList.toggle("active", row.dataset.project === name)); visuals.forEach((visual) => visual.classList.toggle("active", visual.dataset.visual === name)); };
+    rows.forEach((row) => {
+      row.addEventListener("pointerenter", () => activate(row.dataset.project)); row.addEventListener("focus", () => activate(row.dataset.project));
+      row.addEventListener("click", (event) => { if (window.matchMedia("(max-width: 850px)").matches && row.dataset.mobileReady !== "true") { event.preventDefault(); rows.forEach((item) => item.dataset.mobileReady = "false"); row.dataset.mobileReady = "true"; activate(row.dataset.project); } });
+    }); activate(rows[0]?.dataset.project);
+  });
+</script>
+<style>
+  .work-index { display: grid; grid-template-columns: minmax(22rem, .82fr) minmax(30rem, 1.18fr); min-height: 39rem; border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); } .work-list { padding: 3rem clamp(2rem, 5vw, 5rem) 3rem 0; border-right: 1px solid var(--color-border); } .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 3rem; } .section-head h2 { margin: 0; } .all-link { color: var(--color-text-sub); font-family: var(--font-mono); font-size: .62rem; letter-spacing: .08em; text-decoration: none; text-transform: uppercase; }
+  ol { margin: 0; padding: 0; list-style: none; } li { border-top: 1px solid var(--color-border); } li:last-child { border-bottom: 1px solid var(--color-border); } .project-row { display: grid; grid-template-columns: 2.6rem 1fr auto; align-items: start; padding: 1.35rem .5rem 1.35rem 0; text-decoration: none; } .number, .year { color: var(--color-text-sub); font-family: var(--font-mono); font-size: .64rem; letter-spacing: .06em; } .year { padding-top: .2rem; } .project-copy { display: flex; flex-direction: column; gap: .15rem; } .project-copy strong { width: fit-content; font-family: var(--font-mono); font-size: .94rem; font-weight: 500; } .project-copy small { color: var(--color-text-sub); font-size: .75rem; } .project-row.active .number { color: var(--color-accent); }
+  .stage { position: relative; overflow: hidden; min-height: 36rem; } .stage-idle { position: absolute; top: 50%; left: 50%; color: var(--color-border); } .mobile-visual { display: none; overflow: hidden; }
+  @media (max-width: 850px) { .work-index { display: block; min-height: 0; } .work-list { padding-right: 0; border-right: 0; } .stage { display: none; } .project-row { grid-template-columns: 2.4rem 1fr auto; } .mobile-visual { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 300ms ease; } .mobile-visual > :global(*) { min-height: 0; overflow: hidden; } li:focus-within .mobile-visual, li:hover .mobile-visual, li:has(.project-row.active) .mobile-visual { grid-template-rows: 1fr; } }
+</style>

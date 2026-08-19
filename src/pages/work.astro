@@ -1,0 +1,27 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ProjectVisual from "../components/work/ProjectVisual.astro";
+import { projects, categorySymbols } from "../data/projects";
+const sortedProjects = [...projects].sort((a, b) => a.order - b.order);
+---
+<BaseLayout title="Work — Yein Sung" description="Open-source tools and interaction experiments by Yein Sung.">
+  <div class="site-shell work-page" data-work-catalog>
+    <header class="page-head"><h1>WORK</h1><span>2024 — 2026</span></header>
+    <div class="legend">{Object.entries(categorySymbols).map(([category, symbol]) => <span><b>{symbol}</b>{category}</span>)}</div>
+    <div class="catalog">
+      <ol>{sortedProjects.map((project, index) => <li><a href={project.website ?? project.github} data-project={project.visual} target="_blank" rel="noopener noreferrer"><span class="number">{String(index + 1).padStart(2, "0")}</span><span class="symbol" aria-hidden="true">{categorySymbols[project.category]}</span><strong>{project.name}</strong><span class="category">{project.category}</span><span class={`status status-${project.status}`}>{project.status}</span><time>{project.year}</time><span class="external">↗</span></a></li>)}</ol>
+      <aside class="preview" aria-hidden="true"><span class="idle">·</span>{sortedProjects.filter((project) => project.visual).map((project) => <ProjectVisual name={project.visual!} />)}</aside>
+    </div>
+  </div>
+</BaseLayout>
+<script>
+  const catalog = document.querySelector<HTMLElement>("[data-work-catalog]");
+  if (catalog) { const rows = [...catalog.querySelectorAll<HTMLElement>("[data-project]")]; const visuals = [...catalog.querySelectorAll<HTMLElement>("[data-visual]")]; const activate = (name?: string) => visuals.forEach((visual) => visual.classList.toggle("active", visual.dataset.visual === name)); rows.forEach((row) => { row.addEventListener("pointerenter", () => activate(row.dataset.project)); row.addEventListener("focus", () => activate(row.dataset.project)); row.addEventListener("pointerleave", () => activate()); row.addEventListener("blur", () => activate()); }); }
+</script>
+<style>
+  .work-page { padding: clamp(4rem, 9vw, 8rem) 0 3rem; } .page-head { display: flex; align-items: end; justify-content: space-between; margin-bottom: 4rem; } h1 { margin: 0; font-size: clamp(4rem, 10vw, 9rem); font-weight: 500; letter-spacing: -.08em; line-height: .8; } .page-head span { color: var(--color-text-sub); font-family: var(--font-mono); font-size: .7rem; }
+  .legend { display: flex; gap: 1.7rem; margin-bottom: 1.5rem; color: var(--color-text-sub); font-family: var(--font-mono); font-size: .6rem; letter-spacing: .08em; text-transform: uppercase; } .legend span { display: flex; gap: .4rem; } .legend b { color: var(--color-accent); font-weight: 400; }
+  .catalog { position: relative; } ol { position: relative; z-index: 2; width: 100%; margin: 0; padding: 0; border-top: 1px solid var(--color-border); list-style: none; } li { border-bottom: 1px solid var(--color-border); } li a { display: grid; grid-template-columns: 3rem 2rem minmax(10rem, 1fr) 9rem 7rem 4rem 1rem; align-items: center; min-height: 5rem; text-decoration: none; } .number, .category, .status, time { color: var(--color-text-sub); font-family: var(--font-mono); font-size: .62rem; letter-spacing: .09em; text-transform: uppercase; } .symbol { color: var(--color-accent); } strong { font-family: var(--font-mono); font-size: .92rem; font-weight: 500; } .status-active { color: var(--color-text); } .external { color: var(--color-accent); opacity: 0; transition: opacity 150ms; } li a:hover .external, li a:focus-visible .external { opacity: 1; }
+  .preview { position: fixed; z-index: 10; right: 2rem; bottom: 2rem; width: min(40vw, 34rem); height: 19rem; border: 1px solid var(--color-border); background: color-mix(in srgb, var(--color-bg) 94%, transparent); box-shadow: 0 12px 40px color-mix(in srgb, var(--color-text) 8%, transparent); pointer-events: none; } .idle { position: absolute; top: 50%; left: 50%; color: var(--color-border); }
+  @media (max-width: 760px) { .work-page { padding-top: 3rem; } .page-head { margin-bottom: 3rem; } .legend { overflow-x: auto; } li a { grid-template-columns: 2.6rem 1.8rem 1fr auto; min-height: 4.5rem; } .category, .status, time { display: none; } .preview { display: none; } }
+</style>

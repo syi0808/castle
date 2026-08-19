@@ -1,13 +1,7 @@
-<footer class="border-t border-(--color-border)">
-  <div class="mx-auto max-w-[740px] px-6 h-12 flex items-center justify-between font-mono text-xs text-(--color-text-sub)">
-    <span>&copy; {new Date().getFullYear()} Yein Sung</span>
-    <div class="flex items-center gap-4">
-      <a href="https://github.com/syi0808" class="hover:text-(--color-text) transition-colors" target="_blank" rel="noopener noreferrer">
-        GitHub
-      </a>
-      <a href={`${import.meta.env.BASE_URL}rss.xml`} class="hover:text-(--color-text) transition-colors">
-        RSS
-      </a>
-    </div>
-  </div>
-</footer>
+<footer class="site-footer"><div class="site-shell footer-inner">
+  <span>YEIN SUNG / {new Date().getFullYear()}</span><div class="links"><a class="rough-link" href="https://github.com/syi0808" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a class="rough-link" href={`${import.meta.env.BASE_URL}rss.xml`}>RSS</a><span>SEOUL, KR</span></div>
+</div></footer>
+<style>
+  .site-footer { margin-top: var(--section-space); border-top: 1px solid var(--color-border); } .footer-inner { display: flex; align-items: center; justify-content: space-between; min-height: 7rem; color: var(--color-text-sub); font-family: var(--font-mono); font-size: .65rem; letter-spacing: .08em; text-transform: uppercase; } .links { display: flex; gap: 2rem; } .links a { text-decoration: none; }
+  @media (max-width: 600px) { .footer-inner { align-items: flex-start; flex-direction: column; justify-content: center; gap: 1rem; } .links { width: 100%; justify-content: space-between; gap: 1rem; } }
+</style>
