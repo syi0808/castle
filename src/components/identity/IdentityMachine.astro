@@ -1,56 +1,81 @@
-<div class="machine" aria-hidden="true">
-  <svg viewBox="0 0 600 440" role="presentation">
-    <g class="blueprint"><path d="M35 75H565M35 220H565M35 365H565M110 40V400M300 40V400M490 40V400" /></g>
+<div class="machine" data-transformation aria-hidden="true">
+  <svg viewBox="0 0 600 420" role="presentation">
+    <path class="axis" d="M72 210H526" />
+    <circle class="endpoint origin" cx="84" cy="210" r="21" />
+    <rect class="endpoint result" x="487" y="189" width="42" height="42" />
 
-    <g class="source layer-back">
-      <path class="bracket" d="M105 113H76v190h29M157 113h29v190h-29" />
-      <path class="code" d="M104 153h43M96 181h62M112 209h35M96 237h55M108 265h42" />
-      <circle class="port" cx="181" cy="208" r="5" />
+    <path class="input-path" d="M106 210H260" />
+    <path class="output-path" d="M340 210H486" />
+    <circle class="signal" cx="112" cy="210" r="6" />
+
+    <g class="between">
+      <rect class="before-shape" x="278" y="187" width="46" height="46" />
+      <path class="branch" d="M301 187v-52m0 98v52m0-75h52m-52 0h-46" />
+      <circle class="branch-node top" cx="301" cy="126" r="10" />
+      <path class="branch-node bottom" d="m301 273 12 12-12 12-12-12Z" />
     </g>
 
-    <path class="signal" d="M187 208C218 208 218 155 249 155" />
-    <path class="signal" d="M187 208C218 208 218 260 249 260" />
-    <g class="tree layer-mid">
-      <circle cx="268" cy="208" r="15" />
-      <path d="M268 193v-38m0 106v-38m15-15h36" />
-      <rect x="249" y="135" width="38" height="38" />
-      <path d="m268 241 20 19-20 20-20-20Z" />
-      <circle cx="329" cy="208" r="10" />
-    </g>
-
-    <path class="take-path" d="M339 208C370 208 372 162 405 162" />
-    <path class="take-path" d="M339 208C370 208 372 275 405 275" />
-    <g class="browser layer-front">
-      <rect class="window" x="398" y="92" width="166" height="244" rx="3" />
-      <path class="chrome" d="M398 126h166" />
-      <circle class="chrome-dot" cx="416" cy="109" r="3" /><circle class="chrome-dot" cx="428" cy="109" r="3" /><circle class="chrome-dot" cx="440" cy="109" r="3" />
-      <rect class="ui ui-a" x="421" y="153" width="118" height="24" rx="12" />
-      <rect class="ui ui-b" x="421" y="197" width="76" height="82" />
-      <circle class="ui ui-c" cx="522" cy="238" r="18" />
-      <path class="scribble" d="M416 302c23-9 35 8 57 0s38 7 67-2" />
-      <path class="cursor" d="m510 256 5 29 8-9 9 12 7-5-9-12 12-4Z" />
-    </g>
-
-    <path class="spark" d="m357 79 5 14 14 5-14 5-5 14-5-14-14-5 14-5Z" />
+    <path class="smear smear-a" d="M242 193h96" />
+    <path class="smear smear-b" d="M231 210h124" />
+    <path class="smear smear-c" d="M249 227h91" />
+    <path class="trace" d="M467 247c18-8 31 8 48 0s28 7 45-2" />
   </svg>
 </div>
 
+<script>
+  const machine = document.querySelector<HTMLElement>("[data-transformation]");
+  const hero = machine?.closest<HTMLElement>(".hero");
+  if (machine && hero) {
+    if (window.matchMedia("(max-width: 900px), (prefers-reduced-motion: reduce)").matches) {
+      machine.dataset.beat = "3";
+    } else {
+      let highestBeat = 0;
+      let scheduled = false;
+      const update = () => {
+        scheduled = false;
+        const bounds = hero.getBoundingClientRect();
+        const distance = Math.max(1, bounds.height - window.innerHeight);
+        const progress = Math.max(0, Math.min(1, -bounds.top / distance));
+        const beat = progress >= .55 ? 3 : progress >= .32 ? 2 : progress >= .1 ? 1 : 0;
+        if (beat <= highestBeat) return;
+        highestBeat = beat;
+        machine.dataset.beat = String(beat);
+      };
+      const schedule = () => { if (!scheduled) { scheduled = true; requestAnimationFrame(update); } };
+      update();
+      window.addEventListener("scroll", schedule, { passive: true });
+    }
+  }
+</script>
+
 <style>
-  .machine { width: min(100%, 40rem); user-select: none; }
+  .machine { width: min(100%, 41rem); user-select: none; }
   svg { display: block; width: 100%; overflow: visible; }
-  path, rect, circle { fill: none; stroke: var(--color-text); stroke-width: 1.45; vector-effect: non-scaling-stroke; }
-  .blueprint { opacity: .42; }
-  .blueprint path { stroke: var(--color-border); stroke-width: 1; stroke-dasharray: 2 9; }
-  .bracket, .code { stroke: var(--color-text-sub); }
-  .code { stroke-dasharray: 2 2; }
-  .signal, .take-path { stroke: var(--color-text-sub); stroke-dasharray: 5 6; }
-  .port, .tree circle, .tree rect, .tree > path { fill: var(--color-bg); }
-  .window { fill: color-mix(in srgb, var(--color-bg) 90%, transparent); }
-  .chrome-dot { fill: var(--color-border); stroke: none; }
-  .ui { fill: var(--color-surface); }
-  .ui-a { stroke: var(--color-accent); }
-  .ui-c { fill: var(--color-bg); }
-  .scribble { stroke: var(--color-accent); stroke-width: 2; }
-  .cursor { fill: var(--color-text); stroke: var(--color-bg); stroke-width: 3; }
-  .spark { fill: var(--color-accent); stroke: var(--color-accent); }
+  path, rect, circle { fill: none; stroke: var(--color-text); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+  .axis { stroke: var(--color-border); stroke-dasharray: 2 9; }
+  .endpoint, .before-shape, .branch-node { fill: var(--color-bg); }
+  .input-path, .output-path { stroke: var(--color-text-sub); stroke-dasharray: 5 6; }
+  .output-path { opacity: .25; }
+  .signal { fill: var(--color-accent); stroke: var(--color-accent); transform: translateX(0); }
+  .branch, .branch-node { opacity: 0; transform-origin: 301px 210px; }
+  .smear { opacity: 0; stroke: var(--color-accent); stroke-linecap: round; }
+  .trace { opacity: 0; stroke: var(--color-accent); stroke-width: 2; stroke-dasharray: 110; stroke-dashoffset: 110; }
+
+  .machine[data-beat="1"] .signal, .machine[data-beat="2"] .signal, .machine[data-beat="3"] .signal { transform: translateX(168px); transition: transform 620ms cubic-bezier(.22, .8, .25, 1); }
+  .machine[data-beat="2"] .before-shape, .machine[data-beat="3"] .before-shape { animation: transform-shape 620ms var(--ease-out-back) both; }
+  .machine[data-beat="2"] .branch, .machine[data-beat="2"] .branch-node, .machine[data-beat="3"] .branch, .machine[data-beat="3"] .branch-node { opacity: 1; transition: opacity 180ms 220ms; }
+  .machine[data-beat="2"] .smear, .machine[data-beat="3"] .smear { animation: smear-pass 520ms ease-out both; }
+  .machine[data-beat="3"] .signal { transform: translateX(374px); }
+  .machine[data-beat="3"] .output-path { opacity: 1; transition: opacity 180ms; }
+  .machine[data-beat="3"] .trace { opacity: 1; stroke-dashoffset: 0; transition: stroke-dashoffset 360ms ease-out 420ms, opacity 100ms 420ms; }
+
+  @keyframes transform-shape { 0% { transform: scale(1); } 22% { transform: translateX(-12px) scale(1.22, .76); } 60% { transform: translateX(26px) scale(.78, 1.18); } 100% { transform: none; } }
+  @keyframes smear-pass { 0%, 15% { opacity: 0; transform: scaleX(.2); transform-origin: left; } 45% { opacity: .7; transform: scaleX(1); } 100% { opacity: 0; transform: translateX(36px) scaleX(.35); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .signal { transform: translateX(374px) !important; }
+    .output-path, .branch, .branch-node, .trace { opacity: 1 !important; }
+    .trace { stroke-dashoffset: 0 !important; }
+    .smear { display: none; }
+  }
 </style>

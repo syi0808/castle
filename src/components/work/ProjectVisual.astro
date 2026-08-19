@@ -2,19 +2,101 @@
 interface Props { name: "rougher-stuff" | "trandimation" | "svgr2" | "zctf"; active?: boolean; }
 const { name, active = false } = Astro.props;
 ---
+
 <div class:list={["project-visual", `visual-${name}`, { active }]} data-visual={name} aria-hidden="true">
-  {name === "rougher-stuff" && <svg viewBox="0 0 560 330"><path class="arrow" d="M132 95c6 17-5 29-31 38m0 0 6-10m-6 10 12 1" /><text x="60" y="173" class="word">expressive</text><path class="scribble" d="M56 190c26-7 37 7 62 0s46 7 71-1 45 5 71-1" /><path class="connector" d="M264 184c74 3 92 47 157 47" /><circle cx="438" cy="231" r="27" /><path class="tick" d="m424 231 10 10 21-27" /></svg>}
-  {name === "trandimation" && <svg viewBox="0 0 560 330"><rect class="ghost" x="70" y="138" width="48" height="48" /><path class="arrow" d="M231 91c-7 23-15 32-37 46m0 0 4-11m-4 11 12-1" /><rect class="block" x="180" y="138" width="48" height="48" /><path class="smear" d="M238 148h152m-152 12h180m-180 12h142" /><rect class="target" x="430" y="138" width="48" height="48" /></svg>}
-  {name === "svgr2" && <svg viewBox="0 0 560 330"><text x="56" y="173" class="code">&lt;svg&gt;</text><path class="flow" d="M132 163h67m-9-8 10 8-10 8" /><rect x="215" y="132" width="92" height="62" /><text x="236" y="167" class="label">Parse</text><path class="flow" d="M308 163h60m-9-8 10 8-10 8" /><path class="ast" d="M405 132v62m0-31h42m-19 0v-24m0 24v24" /><circle cx="405" cy="132" r="7" /><circle cx="447" cy="163" r="7" /><circle cx="428" cy="139" r="7" /><circle cx="428" cy="187" r="7" /><text x="373" y="225" class="code">&lt;Component /&gt;</text></svg>}
-  {name === "zctf" && <svg viewBox="0 0 560 330"><text x="63" y="84" class="label">Rust</text><text x="444" y="84" class="label">JS</text><rect class="port" x="72" y="114" width="35" height="35" /><rect class="port" x="449" y="114" width="35" height="35" /><path class="fast" d="M112 131h330" /><text x="246" y="121" class="time">9.9ms</text><rect class="port muted" x="72" y="230" width="35" height="35" /><rect class="port muted" x="449" y="230" width="35" height="35" /><path class="slow" d="M112 247h330" /><text x="242" y="237" class="time">29.6ms / JSON</text></svg>}
+  {name === "rougher-stuff" && (
+    <svg viewBox="0 0 560 330">
+      <path class="precise" d="M72 112h224M72 158h337M72 204h265" />
+      <circle class="precise-node" cx="438" cy="158" r="28" />
+      <path class="relation" d="M409 158h-62" />
+      <path class="annotation" d="M68 221c31-8 51 8 81 0s54 8 85-1 56 7 91-1" />
+    </svg>
+  )}
+  {name === "trandimation" && (
+    <svg viewBox="0 0 560 330">
+      <rect class="ghost" x="70" y="138" width="48" height="48" />
+      <rect class="block" x="180" y="138" width="48" height="48" />
+      <path class="smear" d="M238 148h152m-152 12h180m-180 12h142" />
+      <rect class="target" x="430" y="138" width="48" height="48" />
+    </svg>
+  )}
+  {name === "svgr2" && (
+    <svg viewBox="0 0 560 330">
+      <text x="45" y="170" class="code">&lt;svg&gt;</text>
+      <path class="flow first" d="M121 163h67m-9-8 10 8-10 8" />
+      <g class="ast">
+        <path d="M250 119v88m0-44h55m-27 0v-30m0 30v35" />
+        <circle cx="250" cy="119" r="7" /><circle cx="305" cy="163" r="7" /><circle cx="278" cy="133" r="7" /><circle cx="278" cy="198" r="7" />
+      </g>
+      <path class="flow second" d="M320 163h62m-9-8 10 8-10 8" />
+      <text x="395" y="170" class="code">&lt;Component /&gt;</text>
+    </svg>
+  )}
+  {name === "zctf" && (
+    <svg viewBox="0 0 560 330">
+      <text x="63" y="83" class="label">Rust</text><text x="450" y="83" class="label">JS</text>
+      <rect class="port" x="72" y="111" width="35" height="35" /><rect class="port" x="449" y="111" width="35" height="35" />
+      <path class="fast" d="M112 128h330" /><text x="250" y="116" class="time fast-time">9.9ms</text>
+      <rect class="port muted" x="72" y="230" width="35" height="35" /><rect class="port muted" x="449" y="230" width="35" height="35" />
+      <path class="slow" d="M112 247c76-47 142 46 220 0s76 31 110 0" /><text x="233" y="226" class="time slow-time">29.6ms / JSON</text>
+    </svg>
+  )}
 </div>
+
 <style>
-  .project-visual { position: absolute; inset: 0; display: grid; place-items: center; opacity: 0; transform: translateY(8px); transition: opacity 180ms, transform 300ms var(--ease-out-back); pointer-events: none; } .project-visual.active { opacity: 1; transform: translateY(0); }
-  svg { width: min(100%, 35rem); overflow: visible; } svg :global(path), svg :global(rect), svg :global(circle) { fill: none; stroke: var(--color-text); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
-  svg :global(text) { fill: var(--color-text); font-family: var(--font-mono); font-size: 15px; } svg :global(.note) { fill: var(--color-accent); font-size: 12px; } svg :global(.label), svg :global(.time) { fill: var(--color-text-sub); font-size: 10px; letter-spacing: .12em; } svg :global(.word) { font-family: var(--font-sans); font-size: 31px; letter-spacing: -.04em; }
-  svg :global(.scribble), svg :global(.arrow), svg :global(.smear) { stroke: var(--color-accent); } svg :global(.connector), svg :global(.flow), svg :global(.slow) { stroke-dasharray: 5 5; } svg :global(.tick) { stroke: var(--color-accent); stroke-width: 2; }
-  .visual-trandimation.active .block { animation: take 1.5s var(--ease-out-back); transform-origin: center; } .visual-trandimation .ghost { opacity: .3; } .visual-trandimation .target { stroke: var(--color-accent); stroke-dasharray: 4 3; } .visual-trandimation .smear { opacity: .45; }
-  .visual-zctf .fast { stroke: var(--color-accent); stroke-width: 3; } .visual-zctf .slow { stroke: var(--color-text-sub); } .visual-zctf .muted { opacity: .45; }
-  @keyframes take { 0%, 10% { transform: translateX(0) scale(1); } 22% { transform: translateX(-14px) scale(1.25, .75); } 52%, 75% { transform: translateX(250px) scale(.8, 1.2); } 100% { transform: translateX(250px); opacity: 0; } }
-  @media (max-width: 760px) { .project-visual { position: relative; min-height: 15rem; } }
+  .project-visual { position: absolute; inset: 0; display: grid; opacity: 0; transform: scale(.985); transition: opacity 160ms, transform 240ms ease-out; pointer-events: none; place-items: center; }
+  .project-visual.active { opacity: 1; transform: scale(1); }
+  svg { width: min(100%, 36rem); overflow: visible; }
+  svg :global(path), svg :global(rect), svg :global(circle) { fill: none; stroke: var(--color-text); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+  svg :global(text) { fill: var(--color-text); font-family: var(--font-mono); font-size: 15px; }
+  svg :global(.label), svg :global(.time) { fill: var(--color-text-sub); font-size: 10px; }
+
+  .visual-rougher-stuff .precise { stroke: var(--color-text-sub); }
+  .visual-rougher-stuff .relation { stroke-dasharray: 5 5; }
+  .visual-rougher-stuff .annotation { stroke: var(--color-accent); stroke-width: 2; stroke-dasharray: 280; stroke-dashoffset: 280; }
+  .visual-rougher-stuff.active .annotation { animation: draw-annotation 380ms ease-out 260ms forwards; }
+
+  .visual-trandimation .ghost { opacity: .28; }
+  .visual-trandimation .target { stroke: var(--color-accent); stroke-dasharray: 4 3; }
+  .visual-trandimation .smear { opacity: 0; stroke: var(--color-accent); }
+  .visual-trandimation.active .block { animation: take 1.05s var(--ease-out-back) both; transform-origin: center; }
+  .visual-trandimation.active .smear { animation: show-smear 1.05s ease-out both; }
+
+  .visual-svgr2 .flow { stroke: var(--color-text-sub); stroke-dasharray: 85; stroke-dashoffset: 85; }
+  .visual-svgr2 .ast { opacity: .2; transform: scale(.8); transform-origin: 275px 163px; }
+  .visual-svgr2.active .first { animation: draw-flow 280ms ease-out forwards; }
+  .visual-svgr2.active .ast { animation: form-tree 340ms var(--ease-out-back) 220ms forwards; }
+  .visual-svgr2.active .second { animation: draw-flow 280ms ease-out 470ms forwards; }
+
+  .visual-zctf .fast, .visual-zctf .slow { stroke-dasharray: 360; stroke-dashoffset: 360; }
+  .visual-zctf .fast { stroke: var(--color-accent); stroke-width: 2.5; }
+  .visual-zctf .slow { stroke: var(--color-text-sub); }
+  .visual-zctf .muted { opacity: .45; }
+  .visual-zctf .time { opacity: 0; }
+  .visual-zctf.active .fast { animation: race 340ms ease-out forwards; }
+  .visual-zctf.active .slow { animation: race 650ms ease-out forwards; }
+  .visual-zctf.active .fast-time { animation: show-result 160ms 340ms forwards; }
+  .visual-zctf.active .slow-time { animation: show-result 160ms 650ms forwards; }
+
+  .visual-rougher-stuff.played .annotation, .visual-svgr2.played .flow, .visual-zctf.played .fast, .visual-zctf.played .slow { animation: none; stroke-dashoffset: 0; }
+  .visual-trandimation.played .block { animation: none; transform: translateX(250px); }
+  .visual-trandimation.played .smear { animation: none; opacity: 0; }
+  .visual-svgr2.played .ast { animation: none; opacity: 1; transform: scale(1); }
+  .visual-zctf.played .time { animation: none; opacity: 1; }
+
+  @keyframes draw-annotation { to { stroke-dashoffset: 0; } }
+  @keyframes take { 0%, 8% { transform: translateX(0) scale(1); opacity: 1; } 20% { transform: translateX(-14px) scale(1.25, .75); } 62% { transform: translateX(250px) scale(.78, 1.18); } 82% { transform: translateX(242px) scale(1.05, .94); } 100% { transform: translateX(250px); opacity: 1; } }
+  @keyframes show-smear { 0%, 20%, 72%, 100% { opacity: 0; } 38%, 58% { opacity: .55; } }
+  @keyframes draw-flow { to { stroke-dashoffset: 0; } }
+  @keyframes form-tree { to { opacity: 1; transform: scale(1); } }
+  @keyframes race { to { stroke-dashoffset: 0; } }
+  @keyframes show-result { to { opacity: 1; } }
+
+  @media (max-width: 850px) { .project-visual { position: relative; min-height: 14rem; opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .project-visual :global(*) { animation: none !important; }
+    .visual-rougher-stuff .annotation, .visual-svgr2 .flow, .visual-zctf .fast, .visual-zctf .slow { stroke-dashoffset: 0; }
+    .visual-svgr2 .ast, .visual-zctf .time { opacity: 1; transform: none; }
+    .visual-trandimation .block { transform: translateX(250px); }
+  }
 </style>
