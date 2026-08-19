@@ -1,7 +1,9 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import CinematicSequence from "../components/landing/CinematicSequence.astro";
-import QuietWriting from "../components/landing/QuietWriting.astro";
+import IdentityHero from "../components/identity/IdentityHero.astro";
+import SelectedWork from "../components/work/SelectedWork.astro";
+import InteractionStudy from "../components/landing/InteractionStudy.astro";
+import WritingIndex from "../components/writing/WritingIndex.astro";
 import JsonLd from "../components/JsonLd.astro";
 import { getSortedPosts } from "../lib/posts";
 import { SITE, AUTHOR } from "../lib/seo";
@@ -10,6 +12,8 @@ const jsonLd = [{ "@context": "https://schema.org", "@type": "WebSite", name: SI
 ---
 <BaseLayout title="Yein Sung — Software Engineer" description="Tools, interfaces, open source, and writing by Yein Sung.">
   {jsonLd.map((data) => <JsonLd data={data} />)}
-  <CinematicSequence />
-  <QuietWriting posts={recentPosts} />
+  <IdentityHero />
+  <SelectedWork />
+  <InteractionStudy />
+  <WritingIndex posts={recentPosts} />
 </BaseLayout>

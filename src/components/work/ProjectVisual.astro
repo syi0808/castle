@@ -3,33 +3,43 @@ interface Props { name: "rougher-stuff" | "trandimation" | "svgr2"; active?: boo
 const { name, active = false } = Astro.props;
 ---
 
-<div class:list={["project-visual", `visual-${name}`, { active }]} data-visual={name} aria-hidden="true">
-  {name === "rougher-stuff" && (
-    <div class="notation-field">
-      <span data-work-notation="underline">underline</span>
-      <span data-work-notation="circle">circle</span>
-      <span data-work-notation="bracket">bracket</span>
-    </div>
-  )}
-  {name === "trandimation" && (
-    <div class="motion-field" data-work-motion-field>
-      <div class="specimen-origin"><div class="specimen" data-work-motion-specimen>same element</div></div>
-      <svg class="registration" data-work-motion-registration viewBox="0 0 32 32" role="presentation">
-        <path d="M16 0v10M16 22v10M0 16h10M22 16h10" />
-        <circle cx="16" cy="16" r="5" />
-      </svg>
-    </div>
-  )}
-  {name === "svgr2" && (
-    <div class="svgr-fixture">
-      <svg class="fixture-shape" viewBox="0 0 16 16" role="presentation"><path d="M8 1l7 14H1L8 1z" /></svg>
-      <div class="representation">
-        <code data-work-svgr-source>&lt;svg&gt;</code>
-        <code data-work-svgr-result>&lt;Icon /&gt;</code>
+<div class:list={["project-visual", { active }]} data-visual={name} aria-hidden="true">
+  <div class="flow-frame">
+    <header><span>Input</span><span>Transform</span><span>Output</span></header>
+
+    {name === "rougher-stuff" && (
+      <div class="flow-grid rough-flow">
+        <div class="flow-cell rough-input"><span class="cell-label">text node</span><p>make this clear</p><code>intent="emphasis"</code></div>
+        <div class="flow-cell operations"><code>underline</code><code>circle</code><code>highlight</code></div>
+        <div class="flow-cell rough-output"><p><span data-rough-mark="underline">make</span> <span data-rough-mark="circle">this</span> <span data-rough-mark="highlight">clear</span></p></div>
       </div>
-      <div class="benchmark"><strong>29.99×</strong><span>JSX · tiny fixture</span></div>
-    </div>
-  )}
+    )}
+
+    {name === "trandimation" && (
+      <div class="motion-flow" data-motion-field>
+        <div class="state-column"><span class="cell-label">state A</span><div class="state-outline"></div></div>
+        <div class="motion-column"><span class="cell-label">continuity</span><div class="motion-path"><i></i><i></i><i></i><i></i></div></div>
+        <div class="state-column"><span class="cell-label">state B</span><div class="state-outline target-outline"></div></div>
+        <div class="specimen-origin"><div class="specimen" data-motion-specimen>same element</div></div>
+        <svg class="registration" data-motion-registration viewBox="0 0 32 32" role="presentation"><path d="M16 0v10M16 22v10M0 16h10M22 16h10" /><circle cx="16" cy="16" r="5" /></svg>
+      </div>
+    )}
+
+    {name === "svgr2" && (
+      <div class="flow-grid svgr-flow">
+        <div class="flow-cell asset-input"><span class="cell-label">mark.svg</span><svg viewBox="0 0 48 48" role="presentation"><path d="M24 5 43 40H5L24 5Z" /><circle cx="24" cy="25" r="7" /></svg><code data-svgr-source>&lt;svg&gt;</code></div>
+        <div class="flow-cell operations"><code>parse</code><code>optimize</code><code>generate</code></div>
+        <div class="flow-cell component-output"><span class="cell-label">Mark.tsx</span><code data-svgr-result>&lt;Icon /&gt;</code><svg viewBox="0 0 48 48" role="presentation"><path d="M24 5 43 40H5L24 5Z" /><circle cx="24" cy="25" r="7" /></svg></div>
+      </div>
+    )}
+
+    <footer>
+      <span>{name}</span>
+      {name === "rougher-stuff" && <span>semantic → drawn</span>}
+      {name === "trandimation" && <span>state → motion → state</span>}
+      {name === "svgr2" && <span>asset → component</span>}
+    </footer>
+  </div>
 </div>
 
 <script>
@@ -45,89 +55,99 @@ const { name, active = false } = Astro.props;
   const controllers = new WeakMap<HTMLElement, EffectController>();
   const played = new WeakSet<HTMLElement>();
   const running = new WeakSet<HTMLElement>();
+  const activeStates = new WeakMap<HTMLElement, boolean>();
   const annotations: RoughAnnotation[] = [];
 
-  const settleMotion = (visual: HTMLElement) => {
-    const field = visual.querySelector<HTMLElement>("[data-work-motion-field]");
-    const specimen = visual.querySelector<HTMLElement>("[data-work-motion-specimen]");
-    const registration = visual.querySelector<SVGElement>("[data-work-motion-registration]");
+  const measureMotion = (visual: HTMLElement) => {
+    const field = visual.querySelector<HTMLElement>("[data-motion-field]");
+    const specimen = visual.querySelector<HTMLElement>("[data-motion-specimen]");
+    const registration = visual.querySelector<SVGElement>("[data-motion-registration]");
     if (!field || !specimen || !registration) return;
-    const origin = field.clientWidth * .13;
-    const distance = Math.max(72, Math.min(220, field.clientWidth - origin - specimen.offsetWidth - 28));
+    const origin = field.clientWidth * .07;
+    const target = field.clientWidth * .84;
+    const distance = Math.max(72, target - origin - specimen.offsetWidth / 2);
     motionDistances.set(visual, distance);
-    registration.style.left = `${origin + specimen.offsetWidth / 2 + distance}px`;
+    registration.style.left = `${target}px`;
+    if (played.has(visual)) specimen.style.transform = `translateX(${distance}px)`;
+  };
+
+  const settleMotion = (visual: HTMLElement) => {
+    const specimen = visual.querySelector<HTMLElement>("[data-motion-specimen]");
+    const registration = visual.querySelector<SVGElement>("[data-motion-registration]");
+    const distance = motionDistances.get(visual);
+    if (!specimen || !registration || distance === undefined) return;
     specimen.style.transform = `translateX(${distance}px)`;
     registration.classList.add("settled");
+    visual.classList.add("rendered");
+    played.add(visual);
   };
 
   const settleSvgr = (visual: HTMLElement) => {
-    const source = visual.querySelector<HTMLElement>("[data-work-svgr-source]");
-    const result = visual.querySelector<HTMLElement>("[data-work-svgr-result]");
+    const source = visual.querySelector<HTMLElement>("[data-svgr-source]");
+    const result = visual.querySelector<HTMLElement>("[data-svgr-result]");
     if (!source || !result) return;
     source.style.visibility = "hidden";
     source.style.transform = "scale(1)";
     result.style.visibility = "visible";
     result.style.transform = "scale(1)";
+    visual.classList.add("rendered");
+    played.add(visual);
   };
 
   const activateRougher = (visual: HTMLElement) => {
     let group = roughGroups.get(visual);
     if (!group) {
       const accent = getComputedStyle(document.documentElement).getPropertyValue("--color-accent").trim();
-      const underline = visual.querySelector<HTMLElement>("[data-work-notation='underline']");
-      const circle = visual.querySelector<HTMLElement>("[data-work-notation='circle']");
-      const bracket = visual.querySelector<HTMLElement>("[data-work-notation='bracket']");
-      if (!underline || !circle || !bracket) return;
+      const soft = getComputedStyle(document.documentElement).getPropertyValue("--color-accent-soft").trim();
+      const underline = visual.querySelector<HTMLElement>("[data-rough-mark='underline']");
+      const circle = visual.querySelector<HTMLElement>("[data-rough-mark='circle']");
+      const highlight = visual.querySelector<HTMLElement>("[data-rough-mark='highlight']");
+      if (!underline || !circle || !highlight) return;
       const created = [
-        annotate(underline, { type: "underline", color: accent, strokeWidth: 2, iterations: 1, roughness: 1.25, seed: 43, padding: [0, 2, 7, 2], animationDuration: 360 }),
-        annotate(circle, { type: "circle", color: accent, strokeWidth: 2, iterations: 1, roughness: 1.25, seed: 43, padding: 10, animationDuration: 420 }),
-        annotate(bracket, { type: "bracket", brackets: ["right"], color: accent, strokeWidth: 2, iterations: 1, roughness: 1.25, seed: 43, padding: 10, animationDuration: 360 }),
+        annotate(underline, { type: "underline", color: accent, strokeWidth: 1.8, iterations: 1, roughness: 1.2, seed: 43, padding: [0, 1, 5, 1], animationDuration: 260 }),
+        annotate(circle, { type: "circle", color: accent, strokeWidth: 1.8, iterations: 1, roughness: 1.2, seed: 47, padding: 7, animationDuration: 320 }),
+        annotate(highlight, { type: "highlight", color: soft, strokeWidth: 1.5, iterations: 1, roughness: 1.1, seed: 51, padding: 2, animationDuration: 280 }),
       ];
       annotations.push(...created);
       group = annotationGroup(created);
       roughGroups.set(visual, group);
     }
-    group.show({ duration: played.has(visual) || reducedMotion ? 0 : 940 });
+    group.show({ duration: played.has(visual) || reducedMotion ? 0 : 760 });
+    visual.classList.add("rendered");
     played.add(visual);
   };
 
   const activateMotion = async (visual: HTMLElement) => {
-    const field = visual.querySelector<HTMLElement>("[data-work-motion-field]");
-    const specimen = visual.querySelector<HTMLElement>("[data-work-motion-specimen]");
+    const field = visual.querySelector<HTMLElement>("[data-motion-field]");
+    const specimen = visual.querySelector<HTMLElement>("[data-motion-specimen]");
     if (!field || !specimen || running.has(visual)) return;
-    settleMotion(visual);
+    measureMotion(visual);
     const distance = motionDistances.get(visual);
-    if (distance === undefined || played.has(visual) || reducedMotion) {
-      played.add(visual);
-      return;
-    }
-    specimen.style.transform = "translateX(0)";
+    if (distance === undefined) return;
+    if (played.has(visual) || reducedMotion) { settleMotion(visual); return; }
     running.add(visual);
+    visual.classList.add("processing");
     try {
-      const controller = createEffect(specimen, "smear", { overlayRoot: field, distance, duration: 670, cleanup: "commit" });
+      const controller = createEffect(specimen, "smear", { overlayRoot: field, distance, duration: 620, cleanup: "commit" });
       controllers.set(visual, controller);
       await controller.play();
     } catch {
       settleMotion(visual);
     }
-    if (visual.classList.contains("active")) settleMotion(visual);
+    settleMotion(visual);
     controllers.delete(visual);
-    played.add(visual);
     running.delete(visual);
   };
 
   const activateSvgr = async (visual: HTMLElement) => {
-    const source = visual.querySelector<HTMLElement>("[data-work-svgr-source]");
-    const result = visual.querySelector<HTMLElement>("[data-work-svgr-result]");
+    const source = visual.querySelector<HTMLElement>("[data-svgr-source]");
+    const result = visual.querySelector<HTMLElement>("[data-svgr-result]");
     if (!source || !result || running.has(visual)) return;
-    if (played.has(visual) || reducedMotion) {
-      settleSvgr(visual);
-      played.add(visual);
-      return;
-    }
+    if (played.has(visual) || reducedMotion) { settleSvgr(visual); return; }
     running.add(visual);
+    visual.classList.add("processing");
     try {
-      const controller = createEffect(source, "compress-swap", { secondary: result, duration: 780 });
+      const controller = createEffect(source, "compress-swap", { secondary: result, duration: 680 });
       controllers.set(visual, controller);
       await controller.play();
     } catch {
@@ -135,7 +155,6 @@ const { name, active = false } = Astro.props;
     }
     settleSvgr(visual);
     controllers.delete(visual);
-    played.add(visual);
     running.delete(visual);
   };
 
@@ -146,34 +165,22 @@ const { name, active = false } = Astro.props;
     if (visual.dataset.visual === "svgr2") void activateSvgr(visual);
   };
 
-  const deactivate = (visual: HTMLElement) => {
-    controllers.get(visual)?.destroy();
-    controllers.delete(visual);
-    roughGroups.get(visual)?.hide();
-    if (visual.dataset.visual === "trandimation") {
-      settleMotion(visual);
-      played.add(visual);
-    }
-    if (visual.dataset.visual === "svgr2") {
-      settleSvgr(visual);
-      played.add(visual);
-    }
-  };
-
   const setup = async () => {
     await document.fonts.ready;
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-    const observer = new MutationObserver((records) => {
-      records.forEach((record) => {
-        const visual = record.target as HTMLElement;
-        if (visual.classList.contains("active")) activate(visual);
-        else deactivate(visual);
-      });
-    });
+    const sync = (visual: HTMLElement) => {
+      const active = visual.classList.contains("active");
+      if (activeStates.get(visual) === active) return;
+      activeStates.set(visual, active);
+      if (active) activate(visual);
+    };
+    const observer = new MutationObserver((records) => records.forEach((record) => sync(record.target as HTMLElement)));
     visuals.forEach((visual) => {
       observer.observe(visual, { attributes: true, attributeFilter: ["class"] });
-      activate(visual);
+      measureMotion(visual);
+      sync(visual);
     });
+    window.addEventListener("resize", () => visuals.forEach(measureMotion), { passive: true });
     window.addEventListener("pagehide", () => {
       observer.disconnect();
       visuals.forEach((visual) => controllers.get(visual)?.destroy());
@@ -185,36 +192,54 @@ const { name, active = false } = Astro.props;
 </script>
 
 <style>
-  .project-visual { position: absolute; inset: 0; display: grid; opacity: 0; transform: scale(.985); transition: opacity 160ms, transform 240ms ease-out; pointer-events: none; place-items: center; }
-  .project-visual.active { opacity: 1; transform: scale(1); }
-  .notation-field { display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(3, 1fr); align-items: center; width: min(88%, 34rem); height: min(62%, 22rem); }
-  .notation-field span { width: fit-content; font-size: clamp(2rem, 4vw, 4rem); font-weight: 500; letter-spacing: -.055em; line-height: .9; }
-  [data-work-notation="underline"] { grid-column: 1 / 7; grid-row: 1; }
-  [data-work-notation="circle"] { grid-column: 5 / 11; grid-row: 2; justify-self: end; }
-  [data-work-notation="bracket"] { grid-column: 2 / 9; grid-row: 3; }
-  .motion-field { position: relative; width: min(86%, 36rem); aspect-ratio: 2 / 1; overflow: hidden; background-image: linear-gradient(color-mix(in srgb, var(--color-text) 7%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-text) 7%, transparent) 1px, transparent 1px); background-size: 24px 24px; }
-  .specimen-origin { position: absolute; top: 50%; left: 13%; transform: translateY(-50%); }
-  .specimen { display: grid; width: 164px; height: 64px; border: 2px solid var(--color-text); border-radius: 9px; color: var(--color-bg); background: var(--color-accent); box-shadow: 5px 5px 0 var(--color-text); font-size: .96rem; font-weight: 600; letter-spacing: -.03em; place-items: center; }
-  .registration { position: absolute; top: 50%; width: 32px; height: 32px; color: var(--color-accent); opacity: .4; transform: translate(-50%, -50%); }
+  .project-visual { position: absolute; inset: 0; display: grid; opacity: 0; transform: translateY(.5rem); transition: opacity 180ms ease, transform 260ms ease-out; pointer-events: none; place-items: center; }
+  .project-visual.active { opacity: 1; transform: translateY(0); }
+  .flow-frame { width: min(88%, 38rem); border: 1px solid var(--color-border); background: var(--color-bg); }
+  header { display: grid; grid-template-columns: repeat(3, 1fr); min-height: 2.4rem; border-bottom: 1px solid var(--color-border); }
+  header span { display: flex; align-items: center; padding: 0 .75rem; color: var(--color-text-sub); font: .48rem var(--font-mono); text-transform: uppercase; }
+  header span + span { border-left: 1px solid var(--color-border); }
+  .flow-grid, .motion-flow { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); min-height: clamp(16rem, 29vw, 21rem); }
+  .flow-cell, .state-column, .motion-column { position: relative; display: grid; min-width: 0; padding: 1rem; place-items: center; }
+  .flow-cell + .flow-cell, .state-column + .motion-column, .motion-column + .state-column { border-left: 1px solid var(--color-border); }
+  .cell-label { position: absolute; top: .75rem; left: .75rem; color: var(--color-text-sub); font: .43rem var(--font-mono); text-transform: uppercase; }
+  .rough-input p, .rough-output p { margin: 0; font-size: clamp(1rem, 1.8vw, 1.35rem); font-weight: 500; letter-spacing: -.035em; line-height: 1.25; text-align: center; }
+  .rough-input code { position: absolute; bottom: 1rem; color: var(--color-text-sub); font: .42rem var(--font-mono); }
+  .rough-output p span { white-space: nowrap; }
+  .operations { align-content: center; gap: .7rem; }
+  .operations code { width: 100%; padding: .4rem .25rem; border-bottom: 1px solid var(--color-border); color: var(--color-text-sub); font: .47rem var(--font-mono); text-align: center; }
+  .operations code::before { margin-right: .45rem; color: var(--color-accent); content: "·"; }
+  .state-outline { width: 70%; aspect-ratio: 1.6 / 1; border: 1px solid var(--color-border); }
+  .target-outline { border-color: color-mix(in srgb, var(--color-accent) 50%, var(--color-border)); }
+  .motion-path { position: relative; width: 100%; height: 1px; background: var(--color-border); }
+  .motion-path i { position: absolute; top: 50%; width: 3px; height: 3px; border-radius: 50%; background: var(--color-accent); opacity: .28; transform: translate(-50%, -50%); }
+  .motion-path i:nth-child(1) { left: 20%; } .motion-path i:nth-child(2) { left: 40%; } .motion-path i:nth-child(3) { left: 60%; } .motion-path i:nth-child(4) { left: 80%; }
+  .processing .motion-path i { animation: trail 480ms ease both; }
+  .processing .motion-path i:nth-child(2) { animation-delay: 70ms; } .processing .motion-path i:nth-child(3) { animation-delay: 140ms; } .processing .motion-path i:nth-child(4) { animation-delay: 210ms; }
+  .specimen-origin { position: absolute; z-index: 2; top: 50%; left: 7%; transform: translateY(-50%); }
+  .specimen { display: grid; width: clamp(5.8rem, 9vw, 7.4rem); height: clamp(2.5rem, 4vw, 3.2rem); border: 1px solid var(--color-text); color: var(--color-bg); background: var(--color-accent); font-size: clamp(.55rem, .8vw, .7rem); font-weight: 500; place-items: center; }
+  .registration { position: absolute; top: 50%; width: 28px; height: 28px; color: var(--color-accent); opacity: .35; transform: translate(-50%, -50%); }
   .registration path, .registration circle { fill: none; stroke: currentColor; stroke-width: 1; vector-effect: non-scaling-stroke; }
   .registration.settled { opacity: .85; }
-  .svgr-fixture { position: relative; display: grid; width: min(86%, 34rem); min-height: 24rem; place-items: center; }
-  .fixture-shape { width: clamp(8rem, 16vw, 13rem); overflow: visible; }
-  .fixture-shape path { fill: none; stroke: var(--color-text); stroke-width: .7; vector-effect: non-scaling-stroke; }
-  .representation { position: absolute; bottom: 3.5rem; display: grid; min-width: 9rem; height: 2rem; place-items: center; }
-  .representation code { position: absolute; font: 500 clamp(1.05rem, 1.8vw, 1.45rem) var(--font-mono); transform-origin: left center; white-space: nowrap; }
-  [data-work-svgr-result] { visibility: hidden; }
-  .benchmark { position: absolute; right: 0; bottom: 0; display: grid; justify-items: end; }
-  .benchmark strong { color: var(--color-accent); font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 500; letter-spacing: -.055em; line-height: .9; }
-  .benchmark span { margin-top: .45rem; color: var(--color-text-sub); font: .64rem var(--font-mono); }
+  .asset-input svg, .component-output svg { width: 52%; max-width: 5rem; }
+  .asset-input svg path, .asset-input svg circle, .component-output svg path, .component-output svg circle { fill: none; stroke: var(--color-text); stroke-width: 1.2; }
+  .asset-input > code { position: absolute; bottom: 1rem; color: var(--color-text-sub); font: .55rem var(--font-mono); transform-origin: left center; }
+  .component-output > code { color: var(--color-accent); font: 500 clamp(.65rem, 1.1vw, .9rem) var(--font-mono); transform-origin: left center; }
+  .component-output svg { position: absolute; right: .7rem; bottom: .7rem; width: 2rem; opacity: .45; }
+  [data-svgr-result] { visibility: hidden; }
+  .rendered .component-output svg { opacity: 1; transition: opacity 240ms ease; }
+  footer { display: flex; justify-content: space-between; min-height: 2.4rem; padding: 0 .75rem; border-top: 1px solid var(--color-border); color: var(--color-text-sub); font: .45rem var(--font-mono); text-transform: uppercase; align-items: center; }
+  footer span:last-child { color: var(--color-accent); }
+  @keyframes trail { 0% { opacity: .2; transform: translate(-50%, -50%) scale(.5); } 55% { opacity: 1; transform: translate(-50%, -50%) scale(1.8); } 100% { opacity: .45; transform: translate(-50%, -50%) scale(1); } }
+
   @media (max-width: 850px) {
-    .project-visual { position: relative; min-height: 16rem; opacity: 1; transform: none; }
-    .notation-field { width: min(92%, 30rem); height: 14rem; }
-    .notation-field span { font-size: clamp(2rem, 10vw, 3.2rem); }
-    .motion-field { width: min(94%, 32rem); aspect-ratio: 1.55 / 1; }
-    .specimen { width: 138px; height: 56px; font-size: .84rem; }
-    .svgr-fixture { width: min(94%, 30rem); min-height: 18rem; }
-    .representation { bottom: 2.6rem; }
+    .project-visual { position: relative; min-height: 18rem; opacity: 1; transform: none; }
+    .flow-frame { width: min(94%, 34rem); }
+    .flow-grid, .motion-flow { min-height: 13rem; }
+    header, footer { min-height: 2rem; }
+    .flow-cell, .state-column, .motion-column { padding: .6rem; }
+    .rough-input p, .rough-output p { font-size: clamp(.82rem, 3.8vw, 1.1rem); }
+    .operations code { font-size: .37rem; }
+    .specimen { width: 5.2rem; height: 2.3rem; font-size: .5rem; }
   }
   @media (prefers-reduced-motion: reduce) { .project-visual { transition: none; } }
 </style>

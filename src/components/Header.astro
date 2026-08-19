@@ -2,18 +2,21 @@
 import ThemeToggle from "./ThemeToggle.astro";
 const base = import.meta.env.BASE_URL;
 const currentPath = Astro.url.pathname;
-const isHome = currentPath === base;
 const navItems = [{ label: "Work", href: `${base}work` }, { label: "Writing", href: `${base}archive` }];
 ---
 <header class="site-header"><nav class="site-shell nav" aria-label="Main navigation">
+  <a href={base} class="brand" aria-label="Yein Sung, home"><span aria-hidden="true">◇</span><strong>YEIN</strong></a>
   <div class="nav-links">
-    {!isHome && <a href={base} class="rough-link">Home</a>}
     {navItems.map((item) => <a href={item.href} class="rough-link" aria-current={currentPath.startsWith(item.href) ? "page" : undefined}>{item.label}</a>)}
     <a href="https://github.com/syi0808" class="rough-link gh" target="_blank" rel="noopener noreferrer" aria-label="GitHub, opens in a new window">GitHub ↗</a><ThemeToggle />
   </div>
 </nav></header>
 <style>
-  .site-header { position: relative; z-index: 40; } .nav { display: flex; align-items: center; justify-content: flex-end; height: 5rem; }
+  .site-header { position: relative; z-index: 40; } .nav { display: flex; align-items: center; justify-content: space-between; height: 5rem; }
+  .brand { display: flex; gap: .65rem; align-items: center; font: .64rem var(--font-mono); letter-spacing: .06em; text-decoration: none; }
+  .brand span { display: inline-grid; width: 1.25rem; height: 1.25rem; color: var(--color-accent); font-size: 1.15rem; line-height: 1; transition: transform 220ms var(--ease-out-back); place-items: center; }
+  .brand:hover span, .brand:focus-visible span { transform: rotate(18deg) scale(1.12); }
+  .brand strong { font-weight: 500; }
   .nav-links { display: flex; align-items: center; gap: clamp(1.1rem, 2.5vw, 2.4rem); font-size: .82rem; }
   @media (max-width: 520px) { .nav { height: 4.25rem; } .gh { display: none; } .nav-links { gap: 1.15rem; } }
 </style>

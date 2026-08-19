@@ -1,0 +1,64 @@
+<section class="interaction-study site-shell" data-interaction-study>
+  <header><span>02</span><h2>Interaction study</h2></header>
+  <button type="button" data-study-play aria-label="Play the motion study">
+    <span class="study-label" data-study-label>play →</span>
+    <span class="track" data-study-track aria-hidden="true"><i class="origin"></i><i class="path"></i><i class="target"></i><i class="specimen" data-study-specimen></i></span>
+  </button>
+</section>
+
+<script>
+  import { createEffect } from "@tradimation/core";
+  import type { EffectController } from "@tradimation/core";
+
+  const section = document.querySelector<HTMLElement>("[data-interaction-study]");
+  const button = section?.querySelector<HTMLButtonElement>("[data-study-play]");
+  const track = section?.querySelector<HTMLElement>("[data-study-track]");
+  const specimen = section?.querySelector<HTMLElement>("[data-study-specimen]");
+  const label = section?.querySelector<HTMLElement>("[data-study-label]");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let controller: EffectController | undefined;
+  let running = false;
+  let distance = 0;
+  const measure = () => { if (track && specimen) distance = Math.max(96, track.clientWidth - specimen.offsetWidth - 48); };
+  const play = async () => {
+    if (!track || !specimen || running) return;
+    running = true;
+    measure();
+    controller?.destroy();
+    specimen.style.transform = "translateX(0)";
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    if (!reducedMotion) {
+      try {
+        controller = createEffect(specimen, "smear", { overlayRoot: track, distance, duration: 640, cleanup: "commit" });
+        await controller.play();
+      } catch { specimen.style.transform = `translateX(${distance}px)`; }
+    }
+    specimen.style.transform = `translateX(${distance}px)`;
+    if (label) label.textContent = "again ↻";
+    running = false;
+  };
+  button?.addEventListener("click", () => void play());
+  window.addEventListener("resize", measure, { passive: true });
+  window.addEventListener("pagehide", () => controller?.destroy(), { once: true });
+  measure();
+</script>
+
+<style>
+  .interaction-study { padding-top: clamp(6rem, 12vw, 10rem); }
+  header { display: flex; gap: 1rem; align-items: baseline; margin-bottom: 2rem; }
+  header span { color: var(--color-accent); font: .62rem var(--font-mono); }
+  h2 { margin: 0; font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 500; letter-spacing: -.045em; line-height: 1; }
+  button { position: relative; display: grid; width: 100%; min-height: clamp(17rem, 35svh, 23rem); padding: 0; border: 1px solid var(--color-border); color: var(--color-text); background: transparent; cursor: pointer; place-items: center; }
+  button::before, button::after { position: absolute; background: var(--color-border); content: ""; }
+  button::before { top: 50%; right: 0; left: 0; height: 1px; }
+  button::after { top: 0; bottom: 0; left: 50%; width: 1px; }
+  .study-label { position: absolute; z-index: 2; top: 1rem; right: 1.25rem; color: var(--color-text-sub); font: .56rem var(--font-mono); text-transform: uppercase; }
+  .track { position: relative; z-index: 2; display: block; width: min(72%, 46rem); height: 6rem; }
+  .track i { position: absolute; top: 50%; transform: translateY(-50%); }
+  .origin { left: 0; width: 2rem; height: 2rem; border: 1px solid var(--color-text); border-radius: 50%; background: var(--color-bg); }
+  .target { right: 0; width: 2rem; height: 2rem; border: 1px solid var(--color-text); background: var(--color-bg); transform: translateY(-50%) rotate(45deg) !important; }
+  .path { right: 2.5rem; left: 2.5rem; height: 1px; background: repeating-linear-gradient(90deg, var(--color-text-sub) 0 4px, transparent 4px 10px); }
+  .specimen { left: 1.5rem; width: 1.2rem; height: 1.2rem; border-radius: .15rem; background: var(--color-accent); box-shadow: 3px 3px 0 var(--color-text); }
+  button:hover .study-label, button:focus-visible .study-label { color: var(--color-text); }
+  @media (max-width: 700px) { .interaction-study { padding-top: 6rem; } button { min-height: 16rem; } .track { width: 82%; } }
+</style>
