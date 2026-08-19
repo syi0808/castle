@@ -1,0 +1,16 @@
+---
+import LabLayout from "../../layouts/LabLayout.astro";
+const prototypes = [
+  { id: "A", name: "Baseline Cut", href: `${import.meta.env.BASE_URL}lab/moving-draft-a`, note: "Asymmetric editorial frame. One line creates the cut into work." },
+  { id: "B", name: "Type Reel", href: `${import.meta.env.BASE_URL}lab/moving-draft-b`, note: "The name becomes the stage and project titles inherit its frame." },
+];
+---
+<LabLayout title="Moving Draft — Prototypes">
+  <main class="lab-index">
+    <header><span>Moving Draft</span><h1>Two directions,<br />one decision.</h1></header>
+    <ol>{prototypes.map((prototype) => <li><a href={prototype.href}><span>{prototype.id}</span><strong>{prototype.name}</strong><p>{prototype.note}</p><b>↗</b></a></li>)}</ol>
+  </main>
+</LabLayout>
+<style>
+  .lab-index { width: min(calc(100% - 3rem), 1180px); margin: 0 auto; padding: 14vh 0 8rem; } header { margin-bottom: 12vh; } header > span { color: var(--color-accent); font-family: var(--font-mono); font-size: .72rem; } h1 { margin: 1rem 0 0; font-size: clamp(3.8rem, 9vw, 8rem); font-weight: 500; letter-spacing: -.075em; line-height: .88; } ol { margin: 0; padding: 0; border-top: 1px solid var(--color-border); list-style: none; } li { border-bottom: 1px solid var(--color-border); } a { display: grid; grid-template-columns: 3rem 1fr minmax(15rem, 26rem) 1rem; align-items: center; min-height: 8rem; text-decoration: none; } a > span { color: var(--color-accent); font-family: var(--font-mono); font-size: .7rem; } strong { font-size: clamp(1.6rem, 3vw, 2.8rem); font-weight: 500; letter-spacing: -.04em; } p { margin: 0; color: var(--color-text-sub); font-size: .85rem; } b { color: var(--color-accent); font-weight: 400; } @media (max-width: 700px) { .lab-index { width: calc(100% - 2rem); } a { grid-template-columns: 2rem 1fr 1rem; padding: 1.5rem 0; } p { display: none; } }
+</style>

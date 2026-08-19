@@ -1,0 +1,77 @@
+---
+import LabLayout from "../../layouts/LabLayout.astro";
+---
+<LabLayout title="Moving Draft A — Baseline Cut">
+  <main class="prototype-a">
+    <section class="hero-a" data-hero-a>
+      <div class="hero-frame">
+        <h1>Yein<br />Sung</h1>
+        <p>I make tools, interfaces,<br />and things I wish existed.</p>
+        <svg class="continuity" viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true">
+          <path class="precise-line" d="M0 30H1000" />
+          <path class="rough-line" d="M0 32c75-9 124 8 201 0s137 9 218-1 143 8 226 0 131 6 205 0 98 5 150-1" />
+        </svg>
+      </div>
+    </section>
+
+    <section class="work-shot" data-work-shot>
+      <div class="work-rule"></div>
+      <div class="work-meta"><span>01</span><span>2026</span></div>
+      <div class="project-title">
+        <h2>rougher-stuff</h2>
+        <svg viewBox="0 0 900 120" preserveAspectRatio="none" aria-hidden="true"><path d="M8 68c66-18 107 17 173 0s116 18 186-2 127 17 199-1 111 13 170 0 103 12 156-2" /></svg>
+      </div>
+      <div class="project-geometry" aria-hidden="true"><span></span><span></span><span></span><i></i></div>
+    </section>
+  </main>
+</LabLayout>
+
+<script>
+  import gsap from "gsap";
+  import ScrollTrigger from "gsap/ScrollTrigger";
+  gsap.registerPlugin(ScrollTrigger);
+
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduced) {
+    gsap.set(".rough-line", { strokeDasharray: 1100, strokeDashoffset: 1100, opacity: 0 });
+    gsap.set(".project-title path", { strokeDasharray: 1000, strokeDashoffset: 1000 });
+    const hero = gsap.timeline({ scrollTrigger: { trigger: "[data-hero-a]", start: "top top", end: "bottom bottom", scrub: .55 } });
+    hero.to(".precise-line", { scaleX: 1, transformOrigin: "left", duration: .5 }, 0)
+      .to(".rough-line", { strokeDashoffset: 0, opacity: 1, duration: .32 }, .38)
+      .to(".continuity", { y: "24vh", duration: .35, ease: "power2.inOut" }, .65)
+      .to(".hero-frame p", { y: -18, opacity: .65, duration: .25 }, .7);
+
+    gsap.timeline({ scrollTrigger: { trigger: "[data-work-shot]", start: "top 72%", once: true } })
+      .from(".work-rule", { scaleX: 0, transformOrigin: "left", duration: .55, ease: "power2.out" })
+      .from(".project-title h2", { yPercent: 18, duration: .5, ease: "power3.out" }, .08)
+      .to(".project-title path", { strokeDashoffset: 0, duration: .42, ease: "power2.out" }, .36)
+      .from(".project-geometry span, .project-geometry i", { scale: 0, stagger: .05, duration: .28, ease: "back.out(1.7)" }, .32);
+  }
+</script>
+
+<style>
+  .prototype-a { overflow: clip; }
+  .hero-a { position: relative; min-height: 155svh; }
+  .hero-frame { position: sticky; top: 0; width: 100%; height: 100svh; }
+  h1 { position: absolute; top: 13vh; left: max(2rem, 7vw); margin: 0; font-size: clamp(7rem, 18vw, 17rem); font-weight: 600; letter-spacing: -.1em; line-height: .7; }
+  .hero-frame p { position: absolute; right: max(2rem, 8vw); bottom: 13vh; max-width: 12em; margin: 0; font-size: clamp(1.45rem, 2.8vw, 2.8rem); font-weight: 500; letter-spacing: -.045em; line-height: 1.2; }
+  .continuity { position: absolute; top: 67%; left: max(2rem, 7vw); width: min(44vw, 42rem); height: 3rem; overflow: visible; }
+  .continuity path { fill: none; vector-effect: non-scaling-stroke; }
+  .precise-line { stroke: var(--color-text); stroke-width: 1.2; transform: scaleX(.18); transform-origin: left; }
+  .rough-line { stroke: var(--color-accent); stroke-width: 2; }
+  .work-shot { position: relative; display: grid; width: min(calc(100% - 4rem), 1180px); min-height: 110svh; margin: 0 auto; padding: 18vh 0; grid-template-columns: 6rem 1fr; align-content: start; }
+  .work-rule { position: absolute; top: 10vh; right: 0; left: 0; border-top: 1px solid var(--color-text); }
+  .work-meta { display: flex; flex-direction: column; justify-content: space-between; height: clamp(8rem, 15vw, 13rem); padding: .7rem 0; color: var(--color-text-sub); font-family: var(--font-mono); font-size: .7rem; }
+  .project-title { position: relative; width: fit-content; }
+  .project-title h2 { margin: 0; font-size: clamp(4rem, 10vw, 10rem); font-weight: 500; letter-spacing: -.08em; line-height: .9; }
+  .project-title svg { position: absolute; right: 0; bottom: -2.5rem; left: 0; width: 100%; height: 3rem; overflow: visible; }
+  .project-title path { fill: none; stroke: var(--color-accent); stroke-width: 2; vector-effect: non-scaling-stroke; }
+  .project-geometry { position: absolute; right: 8%; bottom: 18vh; width: min(38vw, 30rem); height: 15rem; border-top: 1px solid var(--color-border); border-left: 1px solid var(--color-border); }
+  .project-geometry span { position: absolute; display: block; width: 2rem; height: 2rem; border: 1px solid var(--color-text); border-radius: 50%; }
+  .project-geometry span:nth-child(1) { top: -1rem; left: -1rem; }
+  .project-geometry span:nth-child(2) { top: 42%; left: 45%; border-radius: 0; }
+  .project-geometry span:nth-child(3) { right: -1rem; bottom: -1rem; }
+  .project-geometry i { position: absolute; top: 49%; right: 0; left: 0; border-top: 1px dashed var(--color-accent); transform: rotate(18deg); }
+  @media (max-width: 760px) { .hero-a { min-height: 100svh; } .hero-frame { position: relative; } h1 { top: 17vh; left: 1rem; font-size: clamp(6rem, 31vw, 10rem); } .hero-frame p { right: 1rem; bottom: 13vh; font-size: 1.35rem; } .continuity { top: 62%; left: 1rem; width: 65vw; } .work-shot { width: calc(100% - 2rem); grid-template-columns: 3rem 1fr; } .project-geometry { right: 0; bottom: 14vh; width: 72vw; } }
+  @media (prefers-reduced-motion: reduce) { .rough-line, .project-title path { stroke-dashoffset: 0 !important; opacity: 1 !important; } }
+</style>
