@@ -2,19 +2,18 @@
 import RougherProof from "./RougherProof.astro";
 import TradimationProof from "./TradimationProof.astro";
 import Svgr2Proof from "./Svgr2Proof.astro";
-import ZctfProof from "./ZctfProof.astro";
 import { projects } from "../../data/projects";
 
-const featured = projects.filter((project) => project.featured).sort((a, b) => a.order - b.order);
+const featured = projects.filter((project) => project.featured && project.visual).sort((a, b) => a.order - b.order);
+const chapterTotal = String(featured.length).padStart(2, "0");
 const titleSizes: Record<string, string> = {
   "rougher-stuff": "clamp(4rem, 11vw, 11rem)",
   trandimation: "clamp(4rem, 11.5vw, 11.5rem)",
   svgr2: "clamp(5rem, 13vw, 13rem)",
-  zctf: "clamp(5rem, 13vw, 13rem)",
 };
 ---
 
-<section class="cinematic-sequence" data-cinematic-sequence>
+<section class="cinematic-sequence" data-cinematic-sequence data-chapter-total={chapterTotal}>
   <div class="cinematic-stage" data-cinematic-stage>
     <div class="title-stack" aria-live="polite">
       <h1 data-cinematic-title="0">Yein Sung</h1>
@@ -26,13 +25,12 @@ const titleSizes: Record<string, string> = {
     </div>
 
     <p class="intro" data-cinematic-intro>I make tools, interfaces,<br />and things I wish existed.</p>
-    <span class="chapter-number" data-cinematic-number aria-hidden="true">01 / 04</span>
+    <span class="chapter-number" data-cinematic-number aria-hidden="true">01 / {chapterTotal}</span>
 
     <div class="proof-stack">
       <RougherProof />
       <TradimationProof />
       <Svgr2Proof />
-      <ZctfProof />
     </div>
   </div>
 
@@ -67,6 +65,7 @@ const titleSizes: Record<string, string> = {
   const intro = sequence?.querySelector<HTMLElement>("[data-cinematic-intro]");
   const number = sequence?.querySelector<HTMLElement>("[data-cinematic-number]");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const chapterTotal = sequence?.dataset.chapterTotal ?? "00";
 
   let currentIndex = 0;
   let requestedIndex = 0;
@@ -105,7 +104,7 @@ const titleSizes: Record<string, string> = {
     stage?.classList.add("work-mode");
     intro?.classList.add("hidden");
     if (number) {
-      number.textContent = `${String(index).padStart(2, "0")} / 04`;
+      number.textContent = `${String(index).padStart(2, "0")} / ${chapterTotal}`;
       number.setAttribute("aria-hidden", "false");
     }
   };
@@ -118,7 +117,11 @@ const titleSizes: Record<string, string> = {
 
   const transitionTo = async (nextIndex: number) => {
     requestedIndex = nextIndex;
-    if (transitioning || !stage) return;
+    if (transitioning) {
+      titleController?.destroy();
+      return;
+    }
+    if (!stage) return;
     transitioning = true;
 
     while (currentIndex !== requestedIndex) {

@@ -37,7 +37,7 @@ Roughness is evidence of a state change. It is never a permanent surface treatme
 - This effect is justified because a persistent slot changes from identity state to work state.
 - The sentence exits with an ordinary opacity cut before the swap. It does not receive a traditional-animation effect.
 
-### Beats 2–5 — Four work chapters
+### Beats 2–4 — Three work chapters
 
 - The viewport becomes a shared project stage.
 - Each project owns one title and one proof asset.
@@ -45,13 +45,13 @@ Roughness is evidence of a state change. It is never a permanent surface treatme
 - Proof assets do not crossfade through each other. The old proof clears, the title switches, and the next proof activates.
 - Every proof must still identify its project when the title is hidden.
 
-### Beat 6 — Work closes
+### Beat 5 — Work closes
 
-- `zctf` settles and holds.
+- `svgr2` settles and holds.
 - The cinematic stage ends with a hard spatial cut and deliberate empty space.
 - No connector line forces continuity into Writing.
 
-### Beat 7 — Writing epilogue
+### Beat 6 — Writing epilogue
 
 - Writing returns to the warm page background and ordinary document flow.
 - The section is nearly static.
@@ -62,7 +62,7 @@ Roughness is evidence of a state change. It is never a permanent surface treatme
 
 ### 1. What is it?
 
-A single viewport-sized composition used first by identity and then by four projects.
+A single viewport-sized composition used first by identity and then by three projects.
 
 ### 2. Final picture
 
@@ -73,7 +73,7 @@ A single viewport-sized composition used first by identity and then by four proj
 
 ### 3. Elements
 
-- Title stack containing five real headings.
+- Title stack containing four real headings.
 - Intro sentence, present only in the identity beat.
 - Proof stack containing four independent assets.
 - Chapter fraction.
@@ -83,7 +83,7 @@ A single viewport-sized composition used first by identity and then by four proj
 
 - Title: IBM Plex Sans 500, negative tracking, one line, no uppercase conversion.
 - Project title size is bounded so `rougher-stuff` never clips at 320px width.
-- Chapter fraction uses mono numerals only: `01 / 04`.
+- Chapter fraction uses mono numerals only and derives its total from project data: `01 / 03`.
 - Stage background changes once from warm neutral to near-black at the identity/work threshold.
 - No stage border, fake browser frame, floating card chrome, or progress rail.
 
@@ -247,46 +247,6 @@ The exact 16×16 triangle benchmark fixture is rendered large. Beneath it, `<svg
 - The triangle does not move or change shape while representation changes.
 - The benchmark qualifier remains visible enough to prevent a misleading claim.
 - Hiding the project title still communicates SVG-to-component transformation.
-
-## Proof 04 — zctf
-
-### 1. What are we making?
-
-A static structural proof of a little-endian binary document and lazy JavaScript access.
-
-### 2. Final picture
-
-A single horizontal memory document is segmented into its real regions. One access focus lands directly on a field while two measured access times provide restrained evidence.
-
-### 3. Elements
-
-- Header `64 bytes`.
-- Root.
-- List region.
-- String table.
-- String heap.
-- Focused first-access field.
-- `0.020ms view` and `162.866ms JSON parse + first access` evidence from the repository benchmark notes.
-
-### 4. Exact forms
-
-- Segment proportions communicate structure, not byte-accurate relative length.
-- Labels use sentence case and mono numerals.
-- Solid aligned blocks represent the binary document.
-- JSON evidence is textual only; no invented slow squiggle is used.
-- No fake `Rust → JS` benchmark rail and no unverified `9.9ms / 29.6ms` values.
-
-### 5. Composition
-
-- The memory strip owns the central horizontal field.
-- Access evidence aligns beneath the focused region.
-- Accent is reserved for the focused bytes and the faster measured value.
-
-### 6. Match test
-
-- The proof still reads as memory layout without animation.
-- Every number can be traced to the project repository.
-- The visualization does not imply zctf wins full traversal or full string materialization workloads.
 
 ## Writing epilogue asset
 

@@ -1,102 +1,220 @@
 ---
-interface Props { name: "rougher-stuff" | "trandimation" | "svgr2" | "zctf"; active?: boolean; }
+interface Props { name: "rougher-stuff" | "trandimation" | "svgr2"; active?: boolean; }
 const { name, active = false } = Astro.props;
 ---
 
 <div class:list={["project-visual", `visual-${name}`, { active }]} data-visual={name} aria-hidden="true">
   {name === "rougher-stuff" && (
-    <svg viewBox="0 0 560 330">
-      <path class="precise" d="M72 112h224M72 158h337M72 204h265" />
-      <circle class="precise-node" cx="438" cy="158" r="28" />
-      <path class="relation" d="M409 158h-62" />
-      <path class="annotation" d="M68 221c31-8 51 8 81 0s54 8 85-1 56 7 91-1" />
-    </svg>
+    <div class="notation-field">
+      <span data-work-notation="underline">underline</span>
+      <span data-work-notation="circle">circle</span>
+      <span data-work-notation="bracket">bracket</span>
+    </div>
   )}
   {name === "trandimation" && (
-    <svg viewBox="0 0 560 330">
-      <rect class="ghost" x="70" y="138" width="48" height="48" />
-      <rect class="block" x="180" y="138" width="48" height="48" />
-      <path class="smear" d="M238 148h152m-152 12h180m-180 12h142" />
-      <rect class="target" x="430" y="138" width="48" height="48" />
-    </svg>
+    <div class="motion-field" data-work-motion-field>
+      <div class="specimen-origin"><div class="specimen" data-work-motion-specimen>same element</div></div>
+      <svg class="registration" data-work-motion-registration viewBox="0 0 32 32" role="presentation">
+        <path d="M16 0v10M16 22v10M0 16h10M22 16h10" />
+        <circle cx="16" cy="16" r="5" />
+      </svg>
+    </div>
   )}
   {name === "svgr2" && (
-    <svg viewBox="0 0 560 330">
-      <text x="45" y="170" class="code">&lt;svg&gt;</text>
-      <path class="flow first" d="M121 163h67m-9-8 10 8-10 8" />
-      <g class="ast">
-        <path d="M250 119v88m0-44h55m-27 0v-30m0 30v35" />
-        <circle cx="250" cy="119" r="7" /><circle cx="305" cy="163" r="7" /><circle cx="278" cy="133" r="7" /><circle cx="278" cy="198" r="7" />
-      </g>
-      <path class="flow second" d="M320 163h62m-9-8 10 8-10 8" />
-      <text x="395" y="170" class="code">&lt;Component /&gt;</text>
-    </svg>
-  )}
-  {name === "zctf" && (
-    <svg viewBox="0 0 560 330">
-      <text x="63" y="83" class="label">Rust</text><text x="450" y="83" class="label">JS</text>
-      <rect class="port" x="72" y="111" width="35" height="35" /><rect class="port" x="449" y="111" width="35" height="35" />
-      <path class="fast" d="M112 128h330" /><text x="250" y="116" class="time fast-time">9.9ms</text>
-      <rect class="port muted" x="72" y="230" width="35" height="35" /><rect class="port muted" x="449" y="230" width="35" height="35" />
-      <path class="slow" d="M112 247c76-47 142 46 220 0s76 31 110 0" /><text x="233" y="226" class="time slow-time">29.6ms / JSON</text>
-    </svg>
+    <div class="svgr-fixture">
+      <svg class="fixture-shape" viewBox="0 0 16 16" role="presentation"><path d="M8 1l7 14H1L8 1z" /></svg>
+      <div class="representation">
+        <code data-work-svgr-source>&lt;svg&gt;</code>
+        <code data-work-svgr-result>&lt;Icon /&gt;</code>
+      </div>
+      <div class="benchmark"><strong>29.99×</strong><span>JSX · tiny fixture</span></div>
+    </div>
   )}
 </div>
+
+<script>
+  import { annotate, annotationGroup } from "@rougher-stuff/rough-notation";
+  import type { RoughAnnotation, RoughAnnotationGroup } from "@rougher-stuff/rough-notation";
+  import { createEffect } from "@tradimation/core";
+  import type { EffectController } from "@tradimation/core";
+
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const visuals = [...document.querySelectorAll<HTMLElement>(".project-visual[data-visual]")];
+  const roughGroups = new WeakMap<HTMLElement, RoughAnnotationGroup>();
+  const motionDistances = new WeakMap<HTMLElement, number>();
+  const controllers = new WeakMap<HTMLElement, EffectController>();
+  const played = new WeakSet<HTMLElement>();
+  const running = new WeakSet<HTMLElement>();
+  const annotations: RoughAnnotation[] = [];
+
+  const settleMotion = (visual: HTMLElement) => {
+    const field = visual.querySelector<HTMLElement>("[data-work-motion-field]");
+    const specimen = visual.querySelector<HTMLElement>("[data-work-motion-specimen]");
+    const registration = visual.querySelector<SVGElement>("[data-work-motion-registration]");
+    if (!field || !specimen || !registration) return;
+    const origin = field.clientWidth * .13;
+    const distance = Math.max(72, Math.min(220, field.clientWidth - origin - specimen.offsetWidth - 28));
+    motionDistances.set(visual, distance);
+    registration.style.left = `${origin + specimen.offsetWidth / 2 + distance}px`;
+    specimen.style.transform = `translateX(${distance}px)`;
+    registration.classList.add("settled");
+  };
+
+  const settleSvgr = (visual: HTMLElement) => {
+    const source = visual.querySelector<HTMLElement>("[data-work-svgr-source]");
+    const result = visual.querySelector<HTMLElement>("[data-work-svgr-result]");
+    if (!source || !result) return;
+    source.style.visibility = "hidden";
+    source.style.transform = "scale(1)";
+    result.style.visibility = "visible";
+    result.style.transform = "scale(1)";
+  };
+
+  const activateRougher = (visual: HTMLElement) => {
+    let group = roughGroups.get(visual);
+    if (!group) {
+      const accent = getComputedStyle(document.documentElement).getPropertyValue("--color-accent").trim();
+      const underline = visual.querySelector<HTMLElement>("[data-work-notation='underline']");
+      const circle = visual.querySelector<HTMLElement>("[data-work-notation='circle']");
+      const bracket = visual.querySelector<HTMLElement>("[data-work-notation='bracket']");
+      if (!underline || !circle || !bracket) return;
+      const created = [
+        annotate(underline, { type: "underline", color: accent, strokeWidth: 2, iterations: 1, roughness: 1.25, seed: 43, padding: [0, 2, 7, 2], animationDuration: 360 }),
+        annotate(circle, { type: "circle", color: accent, strokeWidth: 2, iterations: 1, roughness: 1.25, seed: 43, padding: 10, animationDuration: 420 }),
+        annotate(bracket, { type: "bracket", brackets: ["right"], color: accent, strokeWidth: 2, iterations: 1, roughness: 1.25, seed: 43, padding: 10, animationDuration: 360 }),
+      ];
+      annotations.push(...created);
+      group = annotationGroup(created);
+      roughGroups.set(visual, group);
+    }
+    group.show({ duration: played.has(visual) || reducedMotion ? 0 : 940 });
+    played.add(visual);
+  };
+
+  const activateMotion = async (visual: HTMLElement) => {
+    const field = visual.querySelector<HTMLElement>("[data-work-motion-field]");
+    const specimen = visual.querySelector<HTMLElement>("[data-work-motion-specimen]");
+    if (!field || !specimen || running.has(visual)) return;
+    settleMotion(visual);
+    const distance = motionDistances.get(visual);
+    if (distance === undefined || played.has(visual) || reducedMotion) {
+      played.add(visual);
+      return;
+    }
+    specimen.style.transform = "translateX(0)";
+    running.add(visual);
+    try {
+      const controller = createEffect(specimen, "smear", { overlayRoot: field, distance, duration: 670, cleanup: "commit" });
+      controllers.set(visual, controller);
+      await controller.play();
+    } catch {
+      settleMotion(visual);
+    }
+    if (visual.classList.contains("active")) settleMotion(visual);
+    controllers.delete(visual);
+    played.add(visual);
+    running.delete(visual);
+  };
+
+  const activateSvgr = async (visual: HTMLElement) => {
+    const source = visual.querySelector<HTMLElement>("[data-work-svgr-source]");
+    const result = visual.querySelector<HTMLElement>("[data-work-svgr-result]");
+    if (!source || !result || running.has(visual)) return;
+    if (played.has(visual) || reducedMotion) {
+      settleSvgr(visual);
+      played.add(visual);
+      return;
+    }
+    running.add(visual);
+    try {
+      const controller = createEffect(source, "compress-swap", { secondary: result, duration: 780 });
+      controllers.set(visual, controller);
+      await controller.play();
+    } catch {
+      settleSvgr(visual);
+    }
+    settleSvgr(visual);
+    controllers.delete(visual);
+    played.add(visual);
+    running.delete(visual);
+  };
+
+  const activate = (visual: HTMLElement) => {
+    if (!visual.classList.contains("active")) return;
+    if (visual.dataset.visual === "rougher-stuff") activateRougher(visual);
+    if (visual.dataset.visual === "trandimation") void activateMotion(visual);
+    if (visual.dataset.visual === "svgr2") void activateSvgr(visual);
+  };
+
+  const deactivate = (visual: HTMLElement) => {
+    controllers.get(visual)?.destroy();
+    controllers.delete(visual);
+    roughGroups.get(visual)?.hide();
+    if (visual.dataset.visual === "trandimation") {
+      settleMotion(visual);
+      played.add(visual);
+    }
+    if (visual.dataset.visual === "svgr2") {
+      settleSvgr(visual);
+      played.add(visual);
+    }
+  };
+
+  const setup = async () => {
+    await document.fonts.ready;
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    const observer = new MutationObserver((records) => {
+      records.forEach((record) => {
+        const visual = record.target as HTMLElement;
+        if (visual.classList.contains("active")) activate(visual);
+        else deactivate(visual);
+      });
+    });
+    visuals.forEach((visual) => {
+      observer.observe(visual, { attributes: true, attributeFilter: ["class"] });
+      activate(visual);
+    });
+    window.addEventListener("pagehide", () => {
+      observer.disconnect();
+      visuals.forEach((visual) => controllers.get(visual)?.destroy());
+      annotations.forEach((annotation) => annotation.remove());
+    }, { once: true });
+  };
+
+  void setup();
+</script>
 
 <style>
   .project-visual { position: absolute; inset: 0; display: grid; opacity: 0; transform: scale(.985); transition: opacity 160ms, transform 240ms ease-out; pointer-events: none; place-items: center; }
   .project-visual.active { opacity: 1; transform: scale(1); }
-  svg { width: min(100%, 36rem); overflow: visible; }
-  svg :global(path), svg :global(rect), svg :global(circle) { fill: none; stroke: var(--color-text); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
-  svg :global(text) { fill: var(--color-text); font-family: var(--font-mono); font-size: 15px; }
-  svg :global(.label), svg :global(.time) { fill: var(--color-text-sub); font-size: 10px; }
-
-  .visual-rougher-stuff .precise { stroke: var(--color-text-sub); }
-  .visual-rougher-stuff .relation { stroke-dasharray: 5 5; }
-  .visual-rougher-stuff .annotation { stroke: var(--color-accent); stroke-width: 2; stroke-dasharray: 280; stroke-dashoffset: 280; }
-  .visual-rougher-stuff.active .annotation { animation: draw-annotation 380ms ease-out 260ms forwards; }
-
-  .visual-trandimation .ghost { opacity: .28; }
-  .visual-trandimation .target { stroke: var(--color-accent); stroke-dasharray: 4 3; }
-  .visual-trandimation .smear { opacity: 0; stroke: var(--color-accent); }
-  .visual-trandimation.active .block { animation: take 1.05s var(--ease-out-back) both; transform-origin: center; }
-  .visual-trandimation.active .smear { animation: show-smear 1.05s ease-out both; }
-
-  .visual-svgr2 .flow { stroke: var(--color-text-sub); stroke-dasharray: 85; stroke-dashoffset: 85; }
-  .visual-svgr2 .ast { opacity: .2; transform: scale(.8); transform-origin: 275px 163px; }
-  .visual-svgr2.active .first { animation: draw-flow 280ms ease-out forwards; }
-  .visual-svgr2.active .ast { animation: form-tree 340ms var(--ease-out-back) 220ms forwards; }
-  .visual-svgr2.active .second { animation: draw-flow 280ms ease-out 470ms forwards; }
-
-  .visual-zctf .fast, .visual-zctf .slow { stroke-dasharray: 360; stroke-dashoffset: 360; }
-  .visual-zctf .fast { stroke: var(--color-accent); stroke-width: 2.5; }
-  .visual-zctf .slow { stroke: var(--color-text-sub); }
-  .visual-zctf .muted { opacity: .45; }
-  .visual-zctf .time { opacity: 0; }
-  .visual-zctf.active .fast { animation: race 340ms ease-out forwards; }
-  .visual-zctf.active .slow { animation: race 650ms ease-out forwards; }
-  .visual-zctf.active .fast-time { animation: show-result 160ms 340ms forwards; }
-  .visual-zctf.active .slow-time { animation: show-result 160ms 650ms forwards; }
-
-  .visual-rougher-stuff.played .annotation, .visual-svgr2.played .flow, .visual-zctf.played .fast, .visual-zctf.played .slow { animation: none; stroke-dashoffset: 0; }
-  .visual-trandimation.played .block { animation: none; transform: translateX(250px); }
-  .visual-trandimation.played .smear { animation: none; opacity: 0; }
-  .visual-svgr2.played .ast { animation: none; opacity: 1; transform: scale(1); }
-  .visual-zctf.played .time { animation: none; opacity: 1; }
-
-  @keyframes draw-annotation { to { stroke-dashoffset: 0; } }
-  @keyframes take { 0%, 8% { transform: translateX(0) scale(1); opacity: 1; } 20% { transform: translateX(-14px) scale(1.25, .75); } 62% { transform: translateX(250px) scale(.78, 1.18); } 82% { transform: translateX(242px) scale(1.05, .94); } 100% { transform: translateX(250px); opacity: 1; } }
-  @keyframes show-smear { 0%, 20%, 72%, 100% { opacity: 0; } 38%, 58% { opacity: .55; } }
-  @keyframes draw-flow { to { stroke-dashoffset: 0; } }
-  @keyframes form-tree { to { opacity: 1; transform: scale(1); } }
-  @keyframes race { to { stroke-dashoffset: 0; } }
-  @keyframes show-result { to { opacity: 1; } }
-
-  @media (max-width: 850px) { .project-visual { position: relative; min-height: 14rem; opacity: 1; transform: none; } }
-  @media (prefers-reduced-motion: reduce) {
-    .project-visual :global(*) { animation: none !important; }
-    .visual-rougher-stuff .annotation, .visual-svgr2 .flow, .visual-zctf .fast, .visual-zctf .slow { stroke-dashoffset: 0; }
-    .visual-svgr2 .ast, .visual-zctf .time { opacity: 1; transform: none; }
-    .visual-trandimation .block { transform: translateX(250px); }
+  .notation-field { display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(3, 1fr); align-items: center; width: min(88%, 34rem); height: min(62%, 22rem); }
+  .notation-field span { width: fit-content; font-size: clamp(2rem, 4vw, 4rem); font-weight: 500; letter-spacing: -.055em; line-height: .9; }
+  [data-work-notation="underline"] { grid-column: 1 / 7; grid-row: 1; }
+  [data-work-notation="circle"] { grid-column: 5 / 11; grid-row: 2; justify-self: end; }
+  [data-work-notation="bracket"] { grid-column: 2 / 9; grid-row: 3; }
+  .motion-field { position: relative; width: min(86%, 36rem); aspect-ratio: 2 / 1; overflow: hidden; background-image: linear-gradient(color-mix(in srgb, var(--color-text) 7%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-text) 7%, transparent) 1px, transparent 1px); background-size: 24px 24px; }
+  .specimen-origin { position: absolute; top: 50%; left: 13%; transform: translateY(-50%); }
+  .specimen { display: grid; width: 164px; height: 64px; border: 2px solid var(--color-text); border-radius: 9px; color: var(--color-bg); background: var(--color-accent); box-shadow: 5px 5px 0 var(--color-text); font-size: .96rem; font-weight: 600; letter-spacing: -.03em; place-items: center; }
+  .registration { position: absolute; top: 50%; width: 32px; height: 32px; color: var(--color-accent); opacity: .4; transform: translate(-50%, -50%); }
+  .registration path, .registration circle { fill: none; stroke: currentColor; stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .registration.settled { opacity: .85; }
+  .svgr-fixture { position: relative; display: grid; width: min(86%, 34rem); min-height: 24rem; place-items: center; }
+  .fixture-shape { width: clamp(8rem, 16vw, 13rem); overflow: visible; }
+  .fixture-shape path { fill: none; stroke: var(--color-text); stroke-width: .7; vector-effect: non-scaling-stroke; }
+  .representation { position: absolute; bottom: 3.5rem; display: grid; min-width: 9rem; height: 2rem; place-items: center; }
+  .representation code { position: absolute; font: 500 clamp(1.05rem, 1.8vw, 1.45rem) var(--font-mono); transform-origin: left center; white-space: nowrap; }
+  [data-work-svgr-result] { visibility: hidden; }
+  .benchmark { position: absolute; right: 0; bottom: 0; display: grid; justify-items: end; }
+  .benchmark strong { color: var(--color-accent); font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 500; letter-spacing: -.055em; line-height: .9; }
+  .benchmark span { margin-top: .45rem; color: var(--color-text-sub); font: .64rem var(--font-mono); }
+  @media (max-width: 850px) {
+    .project-visual { position: relative; min-height: 16rem; opacity: 1; transform: none; }
+    .notation-field { width: min(92%, 30rem); height: 14rem; }
+    .notation-field span { font-size: clamp(2rem, 10vw, 3.2rem); }
+    .motion-field { width: min(94%, 32rem); aspect-ratio: 1.55 / 1; }
+    .specimen { width: 138px; height: 56px; font-size: .84rem; }
+    .svgr-fixture { width: min(94%, 30rem); min-height: 18rem; }
+    .representation { bottom: 2.6rem; }
   }
+  @media (prefers-reduced-motion: reduce) { .project-visual { transition: none; } }
 </style>
