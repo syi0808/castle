@@ -62,7 +62,7 @@
 }
 
 .shiki, .shiki span { color: var(--shiki-light) !important; background-color: var(--shiki-light-bg) !important; }
-.dark .shiki, .dark .shiki span { color: var(--shiki-dark) !important; background-color: var(--shiki-dark-bg) !important; }
+html.dark .astro-code, html.dark .astro-code span { color: var(--shiki-dark, #e1e4e8) !important; background-color: var(--shiki-dark-bg, #24292e) !important; }
 
 @media (max-width: 700px) { .site-shell { width: min(calc(100% - 2rem), var(--page-width)); } :root { --section-space: 6.5rem; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
