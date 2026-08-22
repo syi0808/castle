@@ -27,7 +27,7 @@ for (const project of sortedProjects) {
               <li>
                 <a href={project.website ?? project.github} target="_blank" rel="noopener noreferrer">
                   <span class="project">
-                    <strong>{project.name}</strong>
+                    <strong data-project-title>{project.name}</strong>
                     <span>{project.tagline}</span>
                   </span>
                   <span class="arrow">↗</span>
@@ -40,6 +40,32 @@ for (const project of sortedProjects) {
     </div>
   </div>
 </BaseLayout>
+
+<script>
+  import { annotate } from "@rougher-stuff/rough-notation";
+  import type { RoughAnnotation } from "@rougher-stuff/rough-notation";
+
+  const projectIndex = document.querySelector<HTMLElement>(".work-index");
+  const annotations: RoughAnnotation[] = [];
+
+  const setup = async () => {
+    if (!projectIndex) return;
+    await document.fonts.ready;
+    const accent = getComputedStyle(document.documentElement).getPropertyValue("--color-accent").trim();
+    projectIndex.querySelectorAll<HTMLElement>("[data-project-title]").forEach((title, index) => {
+      const annotation = annotate(title, { type: "underline", color: accent, strokeWidth: 1.5, iterations: 1, roughness: 1.2, seed: 110 + index, padding: [0, 0, 4, 0], animationDuration: 260 });
+      annotations.push(annotation);
+      const link = title.closest<HTMLAnchorElement>("a");
+      link?.addEventListener("pointerenter", () => annotation.show({ duration: 260 }));
+      link?.addEventListener("pointerleave", () => annotation.hide());
+      link?.addEventListener("focus", () => annotation.show({ duration: 260 }));
+      link?.addEventListener("blur", () => annotation.hide());
+    });
+  };
+
+  window.addEventListener("pagehide", () => annotations.forEach((annotation) => annotation.remove()), { once: true });
+  void setup();
+</script>
 
 <style>
   .work-page { padding: clamp(4rem, 9vw, 8rem) 0 3rem; }
