@@ -15,14 +15,14 @@ importers:
         specifier: ^3.7.1
         version: 3.7.1
       '@rougher-stuff/rough-notation':
-        specifier: link:../rougher-stuff/packages/rough-notation
-        version: link:../rougher-stuff/packages/rough-notation
+        specifier: ^0.0.1
+        version: 0.0.1(@rougher-stuff/roughjs@0.0.1)
+      '@rougher-stuff/roughjs':
+        specifier: ^0.0.1
+        version: 0.0.1
       astro:
         specifier: ^6.0.8
         version: 6.0.8(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)
-      roughjs:
-        specifier: link:../rougher-stuff/packages/roughjs
-        version: link:../rougher-stuff/packages/roughjs
     devDependencies:
       '@tailwindcss/vite':
         specifier: ^4.2.2
@@ -534,6 +534,23 @@ packages:
     resolution: {integrity: sha512-PrsWNQ8BuE00O3Xsx3ALh2Df8fAj9+cvvX9AIA6o4KpATR98c9mud4XtDWVvsEuyia5U4tVSTKygawyJkjm60w==}
     cpu: [x64]
     os: [win32]
+
+  '@rougher-stuff/animation@0.0.1':
+    resolution: {integrity: sha512-Z83N/Q5/Vvf3rOlbP1kfHHCvdjMJHHXDG1N9ubEgD3j+ZjVAukUEsaC/QNmzJCbpJ5rFZXEac8oi+CbmjVeszA==}
+
+  '@rougher-stuff/geometry@0.0.1':
+    resolution: {integrity: sha512-oui/PMJWssXMTCt5D4qNfxh1OnJ1jv7AH8ivMke2hp1OLGtUxfxqaa+Bnht75AfqLlpkcJoPQVFPrO6BhW/Bhw==}
+
+  '@rougher-stuff/perfect-arrows@0.0.1':
+    resolution: {integrity: sha512-n5H7sv+5f4ztQEtXUxjlCFPUdxbfmQsSh85NqZ2AzD4sIUGtGDtWFSlZ5UZ79NTk+tLAc2Oa30nD4OQzWptBsQ==}
+
+  '@rougher-stuff/rough-notation@0.0.1':
+    resolution: {integrity: sha512-wk1c8O6LQL15Uq+Slpr7+ZXk1sV2ae9vUa9beV4z/YMTqfy5Aet1tFJvcE3SdMzjPE9WXGfSfyhxIXqWBiUcOg==}
+    peerDependencies:
+      '@rougher-stuff/roughjs': ^0.0.1
+
+  '@rougher-stuff/roughjs@0.0.1':
+    resolution: {integrity: sha512-Zpm/zZHfmETp3QdI1idd4ONSKmEiHWuywOWxgDsxENcI3K1CMRj5ymj/GY9nHqZMcOa7ex9sbm7MW2ihFQASmw==}
 
   '@shikijs/core@4.0.2':
     resolution: {integrity: sha512-hxT0YF4ExEqB8G/qFdtJvpmHXBYJ2lWW7qTHDarVkIudPFE6iCIrqdgWxGn5s+ppkGXI0aEGlibI0PAyzP3zlw==}
@@ -2001,6 +2018,26 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.60.0':
     optional: true
+
+  '@rougher-stuff/animation@0.0.1': {}
+
+  '@rougher-stuff/geometry@0.0.1': {}
+
+  '@rougher-stuff/perfect-arrows@0.0.1':
+    dependencies:
+      '@rougher-stuff/geometry': 0.0.1
+
+  '@rougher-stuff/rough-notation@0.0.1(@rougher-stuff/roughjs@0.0.1)':
+    dependencies:
+      '@rougher-stuff/animation': 0.0.1
+      '@rougher-stuff/geometry': 0.0.1
+      '@rougher-stuff/perfect-arrows': 0.0.1
+      '@rougher-stuff/roughjs': 0.0.1
+
+  '@rougher-stuff/roughjs@0.0.1':
+    dependencies:
+      '@rougher-stuff/animation': 0.0.1
+      '@rougher-stuff/geometry': 0.0.1
 
   '@shikijs/core@4.0.2':
     dependencies:
