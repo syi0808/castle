@@ -1,52 +1,20 @@
----
-import IdentityMachine from "./IdentityMachine.astro";
----
-
-<section class="identity-hero site-shell" data-identity-hero>
-  <div class="identity-copy">
-    <h1>Yein Sung</h1>
-    <p>I make tools, interfaces,<br />and <span data-identity-mark>things I wish existed.</span></p>
-  </div>
-  <div class="identity-visual">
-    <IdentityMachine />
-  </div>
+<section class="identity-hero site-shell">
+  <p class="eyebrow">Software engineer · Seoul</p>
+  <h1>Yein Sung</h1>
+  <p class="introduction">I make tools, interfaces, and things I wish existed.</p>
+  <p class="details">Currently exploring open-source developer tools and thoughtful interactions for the web.</p>
 </section>
 
-<script>
-  import { annotate } from "@rougher-stuff/rough-notation";
-  import type { RoughAnnotation } from "@rougher-stuff/rough-notation";
-
-  const hero = document.querySelector<HTMLElement>("[data-identity-hero]");
-  const mark = hero?.querySelector<HTMLElement>("[data-identity-mark]");
-  let annotation: RoughAnnotation | undefined;
-
-  const setup = async () => {
-    if (!mark) return;
-    await document.fonts.ready;
-    const accent = getComputedStyle(document.documentElement).getPropertyValue("--color-accent").trim();
-    annotation = annotate(mark, { type: "underline", color: accent, strokeWidth: 1.8, iterations: 1, roughness: 1.2, seed: 43, padding: [0, 0, 5, 0], animationDuration: 280 });
-    annotation.show({ duration: 520 });
-    mark.addEventListener("pointerenter", () => annotation?.show({ duration: 280 }));
-    mark.addEventListener("pointerleave", () => annotation?.hide());
-  };
-
-  window.addEventListener("pagehide", () => annotation?.remove(), { once: true });
-  void setup();
-</script>
-
 <style>
-  .identity-hero { display: grid; grid-template-columns: minmax(28rem, 1.12fr) minmax(23rem, .88fr); min-height: clamp(32rem, 70svh, 44rem); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); }
-  .identity-copy { display: flex; flex-direction: column; justify-content: center; padding: clamp(3.5rem, 7vw, 6rem) clamp(2rem, 5vw, 5rem) clamp(3.5rem, 7vw, 6rem) 0; }
-  h1 { margin: 0; font-size: clamp(5rem, 8.5vw, 8rem); font-weight: 500; letter-spacing: -.085em; line-height: .78; }
-  p { margin: clamp(2.4rem, 5vh, 3.5rem) 0 0; font-size: clamp(1.7rem, 3vw, 2.75rem); font-weight: 500; letter-spacing: -.045em; line-height: 1.08; }
-  [data-identity-mark] { position: relative; white-space: nowrap; }
-  .identity-visual { display: grid; min-width: 0; padding: clamp(2rem, 4vw, 4rem) 0 clamp(2rem, 4vw, 4rem) clamp(2rem, 5vw, 5rem); border-left: 1px solid var(--color-border); place-items: center; }
+  .identity-hero { padding: clamp(5rem, 11vw, 9rem) 0 clamp(6rem, 12vw, 10rem); border-bottom: 1px solid var(--color-border); }
+  .eyebrow { margin: 0 0 clamp(2rem, 5vw, 4rem); color: var(--color-text-sub); font: .67rem var(--font-mono); text-transform: uppercase; letter-spacing: .08em; }
+  h1 { margin: 0; font-size: clamp(4.5rem, 11vw, 9rem); font-weight: 500; letter-spacing: -.085em; line-height: .82; }
+  .introduction { max-width: 52rem; margin: clamp(2.5rem, 6vw, 4.5rem) 0 0; font-size: clamp(1.7rem, 3.8vw, 3.25rem); font-weight: 500; letter-spacing: -.05em; line-height: 1.08; }
+  .details { max-width: 34rem; margin: 2rem 0 0; color: var(--color-text-sub); font-size: .92rem; line-height: 1.7; }
 
-  @media (max-width: 780px) {
-    .identity-hero { grid-template-columns: 1fr; min-height: 0; }
-    .identity-copy { padding: 3.5rem 0 3rem; }
-    h1 { font-size: clamp(4.5rem, 20vw, 6.5rem); }
-    p { margin-top: 2.5rem; font-size: clamp(1.55rem, 7vw, 2.2rem); }
-    .identity-visual { min-height: 17rem; padding: 1.25rem 0; border-top: 1px solid var(--color-border); border-left: 0; }
+  @media (max-width: 700px) {
+    .identity-hero { padding-top: 3.5rem; }
+    h1 { font-size: clamp(4.2rem, 21vw, 6rem); }
+    .introduction { margin-top: 2.5rem; font-size: clamp(1.6rem, 7.5vw, 2.25rem); }
   }
 </style>

@@ -2,7 +2,6 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import IdentityHero from "../components/identity/IdentityHero.astro";
 import SelectedWork from "../components/work/SelectedWork.astro";
-import InteractionStudy from "../components/landing/InteractionStudy.astro";
 import WritingIndex from "../components/writing/WritingIndex.astro";
 import JsonLd from "../components/JsonLd.astro";
 import { getSortedPosts } from "../lib/posts";
@@ -14,6 +13,5 @@ const jsonLd = [{ "@context": "https://schema.org", "@type": "WebSite", name: SI
   {jsonLd.map((data) => <JsonLd data={data} />)}
   <IdentityHero />
   <SelectedWork />
-  <InteractionStudy />
   <WritingIndex posts={recentPosts} />
 </BaseLayout>
