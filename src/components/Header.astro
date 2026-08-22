@@ -3,7 +3,7 @@ import ThemeToggle from "./ThemeToggle.astro";
 const base = import.meta.env.BASE_URL;
 const currentPath = Astro.url.pathname;
 const isHome = currentPath === base;
-const navItems = [{ label: "Work", href: `${base}work` }, { label: "Writing", href: `${base}archive` }];
+const navItems = [{ label: "Projects", href: `${base}work` }, { label: "Writing", href: `${base}archive` }];
 ---
 <header class="site-header"><nav class="site-shell nav" aria-label="Main navigation">
   <div class="nav-links">
