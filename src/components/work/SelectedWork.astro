@@ -13,12 +13,10 @@ const featured = projects.filter((project) => project.featured).sort((first, sec
     {featured.map((project) => (
       <li>
         <a href={project.website ?? project.github} target="_blank" rel="noopener noreferrer">
-          <time>{project.year}</time>
           <span class="project">
             <strong>{project.name}</strong>
             <span>{project.tagline}</span>
           </span>
-          <span class="category">{project.category}</span>
           <span class="arrow">↗</span>
         </a>
       </li>
@@ -34,9 +32,7 @@ const featured = projects.filter((project) => project.featured).sort((first, sec
   header a:hover, header a:focus-visible { color: var(--color-text); }
   ol { margin: 0; padding: 0; border-top: 1px solid var(--color-border); list-style: none; }
   li { border-bottom: 1px solid var(--color-border); }
-  li > a { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr) 8rem 1.5rem; align-items: center; min-height: clamp(5rem, 7vw, 6.5rem); text-decoration: none; }
-  time, .category { color: var(--color-text-sub); font: .61rem var(--font-mono); }
-  .category { text-transform: capitalize; }
+  li > a { display: grid; grid-template-columns: minmax(0, 1fr) 1.5rem; align-items: center; min-height: clamp(5rem, 7vw, 6.5rem); text-decoration: none; }
   .project { display: flex; align-items: baseline; gap: 1rem; min-width: 0; }
   .project strong { font-size: clamp(1.05rem, 1.9vw, 1.45rem); font-weight: 500; letter-spacing: -.02em; line-height: 1.25; }
   .project > span { overflow: hidden; color: var(--color-text-sub); font-size: .78rem; text-overflow: ellipsis; white-space: nowrap; }
@@ -45,10 +41,9 @@ const featured = projects.filter((project) => project.featured).sort((first, sec
 
   @media (max-width: 700px) {
     .selected-work { padding-top: 6rem; }
-    li > a { grid-template-columns: 3.5rem minmax(0, 1fr) 1rem; min-height: 5.75rem; }
+    li > a { grid-template-columns: minmax(0, 1fr) 1rem; min-height: 5.75rem; }
     .project { display: grid; gap: .25rem; padding-right: 1rem; }
     .project strong { font-size: 1.05rem; }
     .project > span { font-size: .7rem; }
-    .category { display: none; }
   }
 </style>
