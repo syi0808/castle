@@ -10,9 +10,36 @@ const collectionLd = { "@context": "https://schema.org", "@type": "CollectionPag
 ---
 <BaseLayout title="Writing — Yein Sung" description="Notes on software, systems, and open source."><JsonLd data={collectionLd} />
   <div class="site-shell archive"><header><h1>Writing</h1></header>
-    <div class="timeline">{[...years.entries()].map(([year, months]) => <section class="year"><h2>{year}</h2><div class="months">{[...months.entries()].map(([month, monthPosts]) => <div class="month"><h3>{month}</h3><ol>{monthPosts.map((post) => <li><a href={`${import.meta.env.BASE_URL}${post.id}`}><time>{String(post.data.date.getDate()).padStart(2, "0")}</time><span class="line" aria-hidden="true"></span><strong class="rough-link">{post.data.title}</strong></a></li>)}</ol></div>)}</div></section>)}</div>
+    <div class="timeline">{[...years.entries()].map(([year, months]) => <section class="year"><h2>{year}</h2><div class="months">{[...months.entries()].map(([month, monthPosts]) => <div class="month"><h3>{month}</h3><ol>{monthPosts.map((post) => <li><a href={`${import.meta.env.BASE_URL}${post.id}`}><time>{String(post.data.date.getDate()).padStart(2, "0")}</time><span class="line" aria-hidden="true"></span><strong data-writing-title>{post.data.title}</strong></a></li>)}</ol></div>)}</div></section>)}</div>
   </div>
 </BaseLayout>
+
+<script>
+  import { annotate } from "@rougher-stuff/rough-notation";
+  import type { RoughAnnotation } from "@rougher-stuff/rough-notation";
+
+  const archive = document.querySelector<HTMLElement>(".archive");
+  const annotations: RoughAnnotation[] = [];
+
+  const setup = async () => {
+    if (!archive) return;
+    await document.fonts.ready;
+    const accent = getComputedStyle(document.documentElement).getPropertyValue("--color-accent").trim();
+    archive.querySelectorAll<HTMLElement>("[data-writing-title]").forEach((title, index) => {
+      const annotation = annotate(title, { type: "underline", color: accent, strokeWidth: 1.5, iterations: 1, roughness: 1.2, seed: 130 + index, padding: [0, 0, 4, 0], animationDuration: 260 });
+      annotations.push(annotation);
+      const link = title.closest<HTMLAnchorElement>("a");
+      link?.addEventListener("pointerenter", () => annotation.show({ duration: 260 }));
+      link?.addEventListener("pointerleave", () => annotation.hide());
+      link?.addEventListener("focus", () => annotation.show({ duration: 260 }));
+      link?.addEventListener("blur", () => annotation.hide());
+    });
+  };
+
+  window.addEventListener("pagehide", () => annotations.forEach((annotation) => annotation.remove()), { once: true });
+  void setup();
+</script>
+
 <style>
   .archive { padding: clamp(4rem, 9vw, 8rem) 0 2rem; } header { margin-bottom: 6rem; } h1 { margin: 0; font-size: clamp(4rem, 10vw, 9rem); font-weight: 600; letter-spacing: -.08em; line-height: .8; }
   .year { display: grid; grid-template-columns: 9rem 1fr; position: relative; padding-bottom: 5rem; } .year::before { position: absolute; top: 2rem; bottom: 0; left: 2.2rem; width: 5px; background: url("data:image/svg+xml,%3Csvg width='5' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 0c-4 18 3 33 0 51s3 33-1 49' fill='none' stroke='%23a04432' stroke-width='1.3' stroke-dasharray='3 5'/%3E%3C/svg%3E") repeat-y; content: ""; opacity: .65; } h2 { margin: 0; font-family: var(--font-mono); font-size: 1rem; font-weight: 500; } .month { margin-bottom: 3rem; } h3 { margin: 0 0 .8rem; color: var(--color-text-sub); font-size: .82rem; font-weight: 400; } ol { margin: 0; padding: 0; list-style: none; } li a { display: grid; grid-template-columns: 2rem 3rem 1fr; align-items: center; min-height: 4rem; text-decoration: none; } time { color: var(--color-text-sub); font-family: var(--font-mono); font-size: .65rem; } .line { width: 1.7rem; border-top: 1px solid var(--color-border); } strong { width: fit-content; font-size: 1.05rem; font-weight: 500; letter-spacing: -.01em; }
